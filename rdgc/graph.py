@@ -94,6 +94,20 @@ class Graph:
             new_graph.add_edge(mapping[u], mapping[v], w)
         return new_graph
 
+    def copy(self) -> "Graph":
+        new_graph = Graph(self.vertices, self.directed, edge_count=self.edge_countable)
+        for u, v, w in self.get_edges():
+            new_graph.add_edge(u, v, w)
+        return new_graph
+
+    def transpose(self) -> "Graph":
+        if not self.directed:
+            raise ValueError("Cannot transpose an undirected graph")
+        new_graph = Graph(self.vertices, self.directed, edge_count=self.edge_countable)
+        for u, v, w in self.get_edges():
+            new_graph.add_edge(v, u, w)
+        return new_graph
+
     def output(
         self,
         *,
@@ -137,3 +151,45 @@ class Graph:
                 i, j = random.sample((u, v), 2)
                 graph.add_edge(i, j, weight_gener(i, j))
         return graph
+
+    @staticmethod
+    def chain(
+        size: int,
+        *,
+        directed: bool = False,
+        weight_gener: Callable[[int, int], Any] = lambda u, v: None,
+    ) -> "Graph":
+        return Graph.tree(size, 1.0, 0.0, directed=directed, weight_gener=weight_gener)
+
+    @staticmethod
+    def flower(
+        size: int,
+        *,
+        directed: bool = False,
+        weight_gener: Callable[[int, int], Any] = lambda u, v: None,
+    ) -> "Graph":
+        return Graph.tree(size, 0.0, 1.0, directed=directed, weight_gener=weight_gener)
+
+    @staticmethod
+    def tree(
+        size: int,
+        chain: float = 0.0,
+        flower: float = 0.0,
+        *,
+        directed: bool = False,
+        weight_gener: Callable[[int, int], Any] = lambda u, v: None,
+        father_gener: Callable[[int], int] = lambda u: random.randint(0, u - 1),
+    ) -> "Graph":
+        if chain + flower > 1.0 or chain < 0.0 or flower < 0.0:
+            raise ValueError("Invalid parameters")
+        chain_cnt = int((size - 1) * chain)
+        flower_cnt = int((size - 1) * flower)
+        tree = Graph(size, directed)
+        for i in range(1, chain_cnt + 1):
+            tree.add_edge(i, i - 1, weight_gener(i, i - 1))
+        for i in range(chain_cnt + 1, chain_cnt + flower_cnt + 1):
+            tree.add_edge(i, chain_cnt, weight_gener(i, chain_cnt))
+        for i in range(chain_cnt + flower_cnt + 1, size):
+            father = father_gener(i)
+            tree.add_edge(i, father, weight_gener(i, father))
+        return tree

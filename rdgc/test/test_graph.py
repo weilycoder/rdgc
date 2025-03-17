@@ -1,3 +1,4 @@
+import random
 import unittest
 from rdgc import Graph
 
@@ -5,7 +6,36 @@ from rdgc import Graph
 __all__ = ["TestGraph"]
 
 
+class dsu:
+    def __init__(self, n: int):
+        self.par = list(range(n))
+        self.rank = [0] * n
+
+    def find(self, x: int) -> int:
+        if self.par[x] != x:
+            self.par[x] = self.find(self.par[x])
+        return self.par[x]
+
+    def union(self, x: int, y: int) -> bool:
+        x, y = self.find(x), self.find(y)
+        if x == y:
+            return False
+        if self.rank[x] < self.rank[y]:
+            x, y = y, x
+        if self.rank[x] == self.rank[y]:
+            self.rank[x] += 1
+        self.par[y] = x
+        return True
+
+
 class TestGraph(unittest.TestCase):
+    def assert_connected(self, graph: Graph):
+        n = graph.vertices
+        dsu_instance = dsu(n)
+        for u, v, _ in graph.get_edges():
+            dsu_instance.union(u, v)
+        self.assertEqual(len(set(dsu_instance.find(i) for i in range(n))), 1)
+
     def test_output(self):
         graph = Graph(3)
         graph.add_edge(0, 1)
@@ -61,12 +91,42 @@ class TestGraph(unittest.TestCase):
         )
 
     def test_tournament(self):
-        graph = Graph.tournament(5)
-        self.assertNotEqual(
-            graph.output(),
-            Graph.complete(5, directed=True).output(),
-        )
-        self.assertEqual(
-            [[u, v] for u in range(5) for v in range(u + 1, 5)],
-            sorted(sorted((u, v)) for u, v, _ in graph.get_edges()),
-        )
+        for _ in range(10):
+            N = random.randint(10, 50)
+            graph = Graph.tournament(N)
+            self.assertNotEqual(
+                graph.output(),
+                Graph.complete(N, directed=True).output(),
+            )
+            self.assertEqual(
+                [[u, v] for u in range(N) for v in range(u + 1, N)],
+                sorted(sorted((u, v)) for u, v, _ in graph.get_edges()),
+            )
+
+    def test_tree(self):
+        N = 100
+        for _ in range(10):
+            r1, r2 = sorted((random.uniform(0.0, 1.0), random.uniform(0.0, 1.0)))
+            r2 -= r1
+            tree = Graph.tree(N, r1, r2)
+            self.assertEqual(tree.vertices, N)
+            self.assertEqual(tree.edges, N - 1)
+            self.assert_connected(tree)
+
+    def test_chain(self):
+        N = 20
+        graph = Graph.chain(N)
+        self.assertEqual(graph.vertices, N)
+        self.assertEqual(graph.edges, N - 1)
+        for u, v, _ in graph.get_edges():
+            self.assertEqual(u + 1, v)
+
+    def test_flower(self):
+        N = 20
+        graph = Graph.flower(N)
+        self.assertEqual(graph.vertices, N)
+        self.assertEqual(graph.edges, N - 1)
+        for u, v, _ in graph.get_edges():
+            self.assertEqual(u, 0)
+            self.assertNotEqual(v, 0)
+        self.assertEqual(graph.count_edges(0), N - 1)
