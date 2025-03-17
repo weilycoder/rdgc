@@ -35,8 +35,23 @@ class Graph:
         return self.__directed
 
     @property
-    def enable_set(self) -> bool:
+    def edge_countable(self) -> bool:
         return self.__edge_set is not None
+
+    def __add_edge(self, u: int, v: int) -> None:
+        if self.__edge_set is not None:
+            self.__edge_set[(u, v)] += 1
+            if not self.__directed and u != v:
+                self.__edge_set[(v, u)] += 1
+
+    def enable_edge_count(self) -> None:
+        if self.__edge_set is None:
+            self.__edge_set = defaultdict(int)
+            for u, v, _ in self.get_edges():
+                self.__add_edge(u, v)
+
+    def disable_edge_count(self) -> None:
+        self.__edge_set = None
 
     def get_edges(
         self, u: Union[int, None] = None
@@ -56,10 +71,7 @@ class Graph:
         self.__edges[u].append((v, weight))
         if not self.__directed and u != v:
             self.__edges[v].append((u, weight))
-        if self.__edge_set is not None:
-            self.__edge_set[(u, v)] += 1
-            if not self.__directed and u != v:
-                self.__edge_set[(v, u)] += 1
+        self.__add_edge(u, v)
         self.__edge_cnt += 1
 
     def count_edges(self, u: int) -> int:
@@ -77,7 +89,7 @@ class Graph:
         shuffle: Callable[[int], Sequence[int]] = lambda x: random.sample(range(x), x),
     ) -> "Graph":
         mapping = shuffle(self.vertices)
-        new_graph = Graph(self.vertices, self.directed, enable_set=self.enable_set)
+        new_graph = Graph(self.vertices, self.directed, enable_set=self.edge_countable)
         for u, v, w in self.get_edges():
             new_graph.add_edge(mapping[u], mapping[v], w)
         return new_graph
