@@ -193,3 +193,35 @@ class Graph:
             father = father_gener(i)
             tree.add_edge(i, father, weight_gener(i, father))
         return tree
+
+    @staticmethod
+    def binary_tree(
+        size: int,
+        left: Union[float, None] = None,
+        right: Union[float, None] = None,
+        *,
+        directed: bool = False,
+        weight_gener: Callable[[int, int], Any] = lambda u, v: None,
+    ) -> "Graph":
+        if left is None and right is None:
+            rnk = 0.5
+        elif left is None:
+            rnk = 1.0 - cast(float, right)
+        elif right is None:
+            rnk = left
+        else:
+            rnk = left / (left + right)
+        tree = Graph(size, directed)
+        left_rt, right_rt = [0], [0]
+        for i in range(1, size):
+            if random.random() < rnk:
+                rt = random.randrange(len(left_rt))
+                tree.add_edge(i, left_rt[rt], weight_gener(i, left_rt[rt]))
+                left_rt[rt] = i
+                right_rt.append(i)
+            else:
+                rt = random.randrange(len(right_rt))
+                tree.add_edge(i, right_rt[rt], weight_gener(i, right_rt[rt]))
+                right_rt[rt] = i
+                left_rt.append(i)
+        return tree
