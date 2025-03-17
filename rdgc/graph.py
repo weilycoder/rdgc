@@ -121,3 +121,11 @@ class Graph:
                 if u != v or self_loop:
                     graph.add_edge(u, v)
         return graph
+
+    @staticmethod
+    def tournament(size: int) -> "Graph":
+        graph = Graph(size, True)
+        for u in range(size):
+            for v in range(u + 1, size):
+                graph.add_edge(*random.choice(((u, v), (v, u))))
+        return graph

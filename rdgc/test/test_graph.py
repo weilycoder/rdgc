@@ -59,3 +59,10 @@ class TestGraph(unittest.TestCase):
             graph2.output(),
             "0 0\n" "0 1\n" "0 2\n" "1 0\n" "1 1\n" "1 2\n" "2 0\n" "2 1\n" "2 2",
         )
+
+    def test_tournament(self):
+        graph = Graph.tournament(5)
+        self.assertEqual(
+            [[u, v] for u in range(5) for v in range(u + 1, 5)],
+            sorted(sorted((u, v)) for u, v, _ in graph.get_edges()),
+        )
