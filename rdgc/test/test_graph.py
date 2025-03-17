@@ -36,3 +36,26 @@ class TestGraph(unittest.TestCase):
         self.assertEqual(graph.count_edge(0, 1), 1)
         self.assertEqual(graph.edges, 3)
         self.assertEqual(graph.vertices, 3)
+
+    def test_null(self):
+        graph = Graph.null(10)
+        self.assertEqual(graph.output(), "")
+        self.assertEqual(graph.edges, 0)
+        self.assertEqual(graph.vertices, 10)
+
+    def test_complete(self):
+        graph0 = Graph.complete(4)
+        self.assertEqual(
+            graph0.output(),
+            "0 1\n" "0 2\n" "0 3\n" "1 2\n" "1 3\n" "2 3",
+        )
+        graph1 = Graph.complete(3, directed=True)
+        self.assertEqual(
+            graph1.output(),
+            "0 1\n" "0 2\n" "1 0\n" "1 2\n" "2 0\n" "2 1",
+        )
+        graph2 = Graph.complete(3, directed=True, self_loop=True)
+        self.assertEqual(
+            graph2.output(),
+            "0 0\n" "0 1\n" "0 2\n" "1 0\n" "1 1\n" "1 2\n" "2 0\n" "2 1\n" "2 2",
+        )

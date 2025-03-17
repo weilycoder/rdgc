@@ -106,3 +106,18 @@ class Graph:
         if shuffle:
             random.shuffle(output)
         return "\n".join(output)
+
+    @staticmethod
+    def null(size: int, *, directed: bool = False) -> "Graph":
+        return Graph(size, directed)
+
+    @staticmethod
+    def complete(
+        size: int, *, directed: bool = False, self_loop: bool = False
+    ) -> "Graph":
+        graph = Graph(size, directed)
+        for u in range(size):
+            for v in range(size) if directed else range(u, size):
+                if u != v or self_loop:
+                    graph.add_edge(u, v)
+        return graph
