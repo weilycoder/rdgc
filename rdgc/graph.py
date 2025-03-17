@@ -13,14 +13,14 @@ class Graph:
     __edge_set: Union[Dict[Tuple[int, int], int], None]
 
     def __init__(
-        self, vertices: int, directed: bool = False, *, enable_set: bool = False
+        self, vertices: int, directed: bool = False, *, edge_count: bool = False
     ):
         if vertices < 0:
             raise ValueError("Number of vertices must be non-negative")
         self.__directed = directed
         self.__edge_cnt = 0
         self.__edges = [[] for _ in range(vertices)]
-        self.__edge_set = defaultdict(int) if enable_set else None
+        self.__edge_set = defaultdict(int) if edge_count else None
 
     @property
     def edges(self) -> int:
@@ -84,12 +84,12 @@ class Graph:
             raise ValueError("Edge set is not enabled")
         return self.__edge_set[(u, v)]
 
-    def shuffle_edges(
+    def shuffle_nodes(
         self,
         shuffle: Callable[[int], Sequence[int]] = lambda x: random.sample(range(x), x),
     ) -> "Graph":
         mapping = shuffle(self.vertices)
-        new_graph = Graph(self.vertices, self.directed, enable_set=self.edge_countable)
+        new_graph = Graph(self.vertices, self.directed, edge_count=self.edge_countable)
         for u, v, w in self.get_edges():
             new_graph.add_edge(mapping[u], mapping[v], w)
         return new_graph
