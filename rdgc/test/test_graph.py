@@ -62,6 +62,10 @@ class TestGraph(unittest.TestCase):
 
     def test_tournament(self):
         graph = Graph.tournament(5)
+        self.assertNotEqual(
+            graph.output(),
+            Graph.complete(5, directed=True).output(),
+        )
         self.assertEqual(
             [[u, v] for u in range(5) for v in range(u + 1, 5)],
             sorted(sorted((u, v)) for u, v, _ in graph.get_edges()),

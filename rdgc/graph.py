@@ -113,19 +113,27 @@ class Graph:
 
     @staticmethod
     def complete(
-        size: int, *, directed: bool = False, self_loop: bool = False
+        size: int,
+        *,
+        directed: bool = False,
+        self_loop: bool = False,
+        weight_gener: Callable[[int, int], Any] = lambda u, v: None,
     ) -> "Graph":
         graph = Graph(size, directed)
         for u in range(size):
             for v in range(size) if directed else range(u, size):
                 if u != v or self_loop:
-                    graph.add_edge(u, v)
+                    graph.add_edge(u, v, weight_gener(u, v))
         return graph
 
     @staticmethod
-    def tournament(size: int) -> "Graph":
+    def tournament(
+        size: int,
+        weight_gener: Callable[[int, int], Any] = lambda u, v: None,
+    ) -> "Graph":
         graph = Graph(size, True)
         for u in range(size):
             for v in range(u + 1, size):
-                graph.add_edge(*random.choice(((u, v), (v, u))))
+                i, j = random.sample((u, v), 2)
+                graph.add_edge(i, j, weight_gener(i, j))
         return graph
