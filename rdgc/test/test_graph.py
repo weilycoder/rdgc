@@ -1,31 +1,10 @@
 import random
 import unittest
 from rdgc import Graph
+from rdgc.utils import dsu
 
 
 __all__ = ["TestGraph"]
-
-
-class dsu:
-    def __init__(self, n: int):
-        self.par = list(range(n))
-        self.rank = [0] * n
-
-    def find(self, x: int) -> int:
-        if self.par[x] != x:
-            self.par[x] = self.find(self.par[x])
-        return self.par[x]
-
-    def union(self, x: int, y: int) -> bool:
-        x, y = self.find(x), self.find(y)
-        if x == y:
-            return False
-        if self.rank[x] < self.rank[y]:
-            x, y = y, x
-        if self.rank[x] == self.rank[y]:
-            self.rank[x] += 1
-        self.par[y] = x
-        return True
 
 
 class TestGraph(unittest.TestCase):
@@ -130,3 +109,9 @@ class TestGraph(unittest.TestCase):
             self.assertEqual(u, 0)
             self.assertNotEqual(v, 0)
         self.assertEqual(graph.count_edges(0), N - 1)
+
+    def test_union_tree(self):
+        N = 20
+        graph = Graph.union_tree(N)
+        self.assertEqual(graph.vertices, N)
+        self.assertEqual(graph.edges, N - 1)

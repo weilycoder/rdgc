@@ -1,5 +1,8 @@
 import random
 from collections import defaultdict
+
+from .utils import dsu
+
 from typing import *  # type: ignore
 
 
@@ -224,4 +227,18 @@ class Graph:
                 tree.add_edge(i, right_rt[rt], weight_gener(i, right_rt[rt]))
                 right_rt[rt] = i
                 left_rt.append(i)
+        return tree
+
+    @staticmethod
+    def union_tree(
+        size: int,
+        *,
+        weight_gener: Callable[[int, int], Any] = lambda u, v: None,
+    ) -> "Graph":
+        tree = Graph(size)
+        dsu_instance = dsu(size)
+        while tree.edges < size - 1:
+            u, v = random.sample(range(size), 2)
+            if dsu_instance.union(u, v):
+                tree.add_edge(u, v, weight_gener(u, v))
         return tree
