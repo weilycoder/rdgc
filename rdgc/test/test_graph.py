@@ -100,9 +100,9 @@ class TestGraph(unittest.TestCase):
         for u, v, _ in graph.get_edges():
             self.assertEqual(u + 1, v)
 
-    def test_flower(self):
+    def test_star(self):
         N = 20
-        graph = Graph.flower(N)
+        graph = Graph.star(N)
         self.assertEqual(graph.vertices, N)
         self.assertEqual(graph.edges, N - 1)
         for u, v, _ in graph.get_edges():

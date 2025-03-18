@@ -165,7 +165,7 @@ class Graph:
         return Graph.tree(size, 1.0, 0.0, directed=directed, weight_gener=weight_gener)
 
     @staticmethod
-    def flower(
+    def star(
         size: int,
         *,
         directed: bool = False,
@@ -177,22 +177,22 @@ class Graph:
     def tree(
         size: int,
         chain: float = 0.0,
-        flower: float = 0.0,
+        star: float = 0.0,
         *,
         directed: bool = False,
         weight_gener: Callable[[int, int], Any] = lambda u, v: None,
         father_gener: Callable[[int], int] = lambda u: random.randint(0, u - 1),
     ) -> "Graph":
-        if chain + flower > 1.0 or chain < 0.0 or flower < 0.0:
+        if chain + star > 1.0 or chain < 0.0 or star < 0.0:
             raise ValueError("Invalid parameters")
         chain_cnt = int((size - 1) * chain)
-        flower_cnt = int((size - 1) * flower)
+        star_cnt = int((size - 1) * star)
         tree = Graph(size, directed)
         for i in range(1, chain_cnt + 1):
             tree.add_edge(i, i - 1, weight_gener(i, i - 1))
-        for i in range(chain_cnt + 1, chain_cnt + flower_cnt + 1):
+        for i in range(chain_cnt + 1, chain_cnt + star_cnt + 1):
             tree.add_edge(i, chain_cnt, weight_gener(i, chain_cnt))
-        for i in range(chain_cnt + flower_cnt + 1, size):
+        for i in range(chain_cnt + star_cnt + 1, size):
             father = father_gener(i)
             tree.add_edge(i, father, weight_gener(i, father))
         return tree
