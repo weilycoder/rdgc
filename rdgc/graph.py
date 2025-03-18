@@ -1,7 +1,8 @@
+import itertools
 import random
 from collections import defaultdict
 
-from .utils import dsu
+from .utils import dsu, filter_none
 
 from typing import *  # type: ignore
 
@@ -12,10 +13,11 @@ __all__ = ["Graph"]
 class Graph:
     __directed: bool
     __edge_cnt: int
+    __ver_rnk: List[Any]
     __edges: List[List[Any]]
     __edge_set: Dict[Tuple[int, int], int]
 
-    def __init__(self, vertices: int, directed: bool = False):
+    def __init__(self, vertices: int, directed: bool = False, rnk: Iterable[Any] = []):
         """
         Initializes a graph object.
 
@@ -37,8 +39,10 @@ class Graph:
             raise ValueError("Number of vertices must be non-negative")
         self.__directed = directed
         self.__edge_cnt = 0
+        self.__ver_rnk = [None for _ in range(vertices)]
         self.__edges = [[] for _ in range(vertices)]
         self.__edge_set = defaultdict(int)
+        self.set_ranks(rnk)
 
     @property
     def edges(self) -> int:
@@ -61,8 +65,61 @@ class Graph:
         if not self.__directed and u != v:
             self.__edge_set[(v, u)] += 1
 
+    def set_rank(self, u: int, rnk: Any = None):
+        """
+        Sets the rank of vertex `u`.
+
+        Args:
+            u (int): The vertex.
+            rnk (Any, optional): The rank of the vertex. Defaults to None.
+
+        Raises:
+            IndexError: If the vertex is invalid.
+        """
+        self.__ver_rnk[u] = rnk
+
+    def get_rank(self, u: int) -> Any:
+        """
+        Returns the rank of vertex `u`.
+
+        Args:
+            u (int): The vertex.
+
+        Returns:
+            Any: The rank of the vertex.
+
+        Raises:
+            IndexError: If the vertex is invalid.
+        """
+        return self.__ver_rnk[u]
+
+    def set_ranks(self, rnk: Iterable[Any], default: Any = None) -> None:
+        """
+        Sets the ranks of vertices `u`.
+
+        Args:
+            rnk (Iterable[Any]): The ranks of the vertices.
+            default (Any, optional): The default rank. Defaults to None.
+
+        Raises:
+            IndexError: If the vertex is invalid.
+        """
+        rnk = itertools.chain(rnk, itertools.repeat(default))
+        rnk = itertools.islice(rnk, self.vertices)
+        for i, r in enumerate(rnk):
+            self.set_rank(i, r)
+
+    def get_ranks(self) -> Tuple[Any]:
+        """
+        Returns the ranks of all vertices.
+
+        Returns:
+            List[Any]: The ranks of all vertices.
+        """
+        return tuple(self.__ver_rnk)
+
     def get_edges(
-        self, u: Union[int, None] = None
+        self, u: Optional[int] = None
     ) -> Generator[Tuple[int, int, Any], None, None]:
         """
         Returns an iterator over the edges of the graph.
@@ -155,6 +212,8 @@ class Graph:
             else shuffle(self.vertices)
         )
         new_graph = Graph(self.vertices, self.directed)
+        for u in range(self.vertices):
+            new_graph.set_rank(mapping[u], self.get_rank(u))
         for u, v, w in self.get_edges():
             new_graph.add_edge(mapping[u], mapping[v], w)
         return new_graph
@@ -167,6 +226,8 @@ class Graph:
             Graph: A deep copy of the graph.
         """
         new_graph = Graph(self.vertices, self.directed)
+        for u in range(self.vertices):
+            new_graph.set_rank(u, self.get_rank(u))
         for u, v, w in self.get_edges():
             new_graph.add_edge(u, v, w)
         return new_graph
@@ -185,11 +246,26 @@ class Graph:
             new_graph.add_edge(v, u, w)
         return new_graph
 
-    def output(
+    def output_nodes(
         self,
         *,
+        sep: str = " ",
+        printer: Optional[Callable[[int], str]] = None,
+    ) -> str:
+        """
+        Returns a string representation of the vertices.
+
+        Returns:
+            str: A string representation of the vertices.
+        """
+        return sep.join(map(str if printer is None else printer, self.get_ranks()))
+
+    def output_edges(
+        self,
+        *,
+        sep: str = "\n",
         shuffle: bool = False,
-        printer: Optional[Callable[[int, int, Any], str]] = None,
+        printer: Optional[Callable[[int, int, Any], Optional[str]]] = None,
     ) -> str:
         """
         Returns a string representation of the graph.
@@ -200,10 +276,12 @@ class Graph:
         """
         if printer is None:
             printer = lambda u, v, w: f"{u} {v}" if w is None else f"{u} {v} {w}"
-        output = [printer(u, v, w) for u, v, w in self.get_edges()]
+
+        edge_output = [printer(u, v, w) for u, v, w in self.get_edges()]
         if shuffle:
-            random.shuffle(output)
-        return "\n".join(output)
+            random.shuffle(edge_output)
+
+        return sep.join(filter_none(edge_output))
 
     @staticmethod
     def null(size: int, *, directed: bool = False) -> "Graph":

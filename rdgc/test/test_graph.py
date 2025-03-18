@@ -15,13 +15,20 @@ class TestGraph(unittest.TestCase):
             dsu_instance.union(u, v)
         self.assertEqual(len(set(dsu_instance.find(i) for i in range(n))), 1)
 
-    def test_output(self):
+    def test_output_node(self):
+        graph = Graph(3, rnk=[3, 4, 5])
+        self.assertEqual(
+            graph.output_nodes(sep=", "),
+            "3, 4, 5",
+        )
+
+    def test_output_edge(self):
         graph = Graph(3)
         graph.add_edge(0, 1)
         graph.add_edge(1, 2)
         graph.add_edge(2, 0)
         self.assertEqual(
-            graph.output(),
+            graph.output_edges(),
             "0 1\n" "0 2\n" "1 2",
         )
 
@@ -33,7 +40,7 @@ class TestGraph(unittest.TestCase):
         graph.add_edge(3, 4)
         graph.add_edge(9, 5)
         shuffled = graph.shuffle_nodes()
-        self.assertNotEqual(graph.output(), shuffled.output())
+        self.assertNotEqual(graph.output_edges(), shuffled.output_edges())
 
     def test_count(self):
         graph = Graph(3)
@@ -48,24 +55,24 @@ class TestGraph(unittest.TestCase):
 
     def test_null(self):
         graph = Graph.null(10)
-        self.assertEqual(graph.output(), "")
+        self.assertEqual(graph.output_edges(), "")
         self.assertEqual(graph.edges, 0)
         self.assertEqual(graph.vertices, 10)
 
     def test_complete(self):
         graph0 = Graph.complete(4)
         self.assertEqual(
-            graph0.output(),
+            graph0.output_edges(),
             "0 1\n" "0 2\n" "0 3\n" "1 2\n" "1 3\n" "2 3",
         )
         graph1 = Graph.complete(3, directed=True)
         self.assertEqual(
-            graph1.output(),
+            graph1.output_edges(),
             "0 1\n" "0 2\n" "1 0\n" "1 2\n" "2 0\n" "2 1",
         )
         graph2 = Graph.complete(3, directed=True, self_loop=True)
         self.assertEqual(
-            graph2.output(),
+            graph2.output_edges(),
             "0 0\n" "0 1\n" "0 2\n" "1 0\n" "1 1\n" "1 2\n" "2 0\n" "2 1\n" "2 2",
         )
 
@@ -74,8 +81,8 @@ class TestGraph(unittest.TestCase):
             N = random.randint(10, 50)
             graph = Graph.tournament(N)
             self.assertNotEqual(
-                graph.output(),
-                Graph.complete(N, directed=True).output(),
+                graph.output_edges(),
+                Graph.complete(N, directed=True).output_edges(),
             )
             self.assertEqual(
                 [[u, v] for u in range(N) for v in range(u + 1, N)],

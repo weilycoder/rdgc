@@ -1,4 +1,13 @@
+from typing import *  # type: ignore
+
 __all__ = ["dsu"]
+
+
+T = TypeVar("T")
+
+
+def filter_none(iterable: Iterable[Optional[T]]) -> Iterable[T]:
+    return (x for x in iterable if x is not None)
 
 
 class dsu:
