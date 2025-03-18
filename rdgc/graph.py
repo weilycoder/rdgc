@@ -13,11 +13,28 @@ class Graph:
     __directed: bool
     __edge_cnt: int
     __edges: List[List[Any]]
-    __edge_set: Union[Dict[Tuple[int, int], int], None]
+    __edge_set: Optional[Dict[Tuple[int, int], int]]
 
     def __init__(
         self, vertices: int, directed: bool = False, *, edge_count: bool = False
     ):
+        """
+        Initializes a graph object.
+
+        Args:
+            vertices (int): The number of vertices in the graph. Must be non-negative.
+            directed (bool, optional): Specifies whether the graph is directed. Defaults to False.
+            edge_count (bool, optional): If True, enables tracking of edge counts. Defaults to False.
+
+        Raises:
+            ValueError: If the number of vertices is negative.
+
+        Attributes:
+            __directed (bool): Indicates if the graph is directed.
+            __edge_cnt (int): Tracks the number of edges in the graph.
+            __edges (list): Adjacency list representation of the graph.
+            __edge_set (defaultdict or None): Tracks edge counts if `edge_count` is True, otherwise None.
+        """
         if vertices < 0:
             raise ValueError("Number of vertices must be non-negative")
         self.__directed = directed
@@ -27,38 +44,54 @@ class Graph:
 
     @property
     def edges(self) -> int:
+        """Returns the total number of edges in the graph."""
         return self.__edge_cnt
 
     @property
     def vertices(self) -> int:
+        """Returns the total number of vertices in the graph."""
         return len(self.__edges)
 
     @property
     def directed(self) -> bool:
+        """Returns True if the graph is directed, otherwise False."""
         return self.__directed
 
     @property
     def edge_countable(self) -> bool:
+        """Returns True if edge count is enabled, otherwise False."""
         return self.__edge_set is not None
 
     def __add_edge(self, u: int, v: int) -> None:
+        """Increments the edge count between vertices `u` and `v`."""
         if self.__edge_set is not None:
             self.__edge_set[(u, v)] += 1
             if not self.__directed and u != v:
                 self.__edge_set[(v, u)] += 1
 
     def enable_edge_count(self) -> None:
+        """Enables edge count tracking."""
         if self.__edge_set is None:
             self.__edge_set = defaultdict(int)
             for u, v, _ in self.get_edges():
                 self.__add_edge(u, v)
 
     def disable_edge_count(self) -> None:
+        """Disables edge count tracking."""
         self.__edge_set = None
 
     def get_edges(
         self, u: Union[int, None] = None
     ) -> Generator[Tuple[int, int, Any], None, None]:
+        """
+        Returns an iterator over the edges of the graph.
+
+        Args:
+            u (int, optional): If specified, returns edges incident to vertex `u`. Defaults to None.
+
+        Yields:
+            Tuple[int, int, Any]: A tuple containing the vertices and weight of an edge.
+        """
         if u is None:
             for u in range(self.vertices):
                 for v, weight in self.__edges[u]:
@@ -69,6 +102,17 @@ class Graph:
                 yield u, v, weight
 
     def add_edge(self, u: int, v: int, weight: Any = None) -> None:
+        """
+        Adds an edge between vertices `u` and `v` with an optional weight.
+
+        Args:
+            u (int): The source vertex.
+            v (int): The destination vertex.
+            weight (Any, optional): The weight of the edge. Defaults to None.
+
+        Raises:
+            ValueError: If the vertices are invalid.
+        """
         if u not in range(self.vertices) or v not in range(self.vertices):
             raise ValueError("Invalid vertex")
         self.__edges[u].append((v, weight))
@@ -78,32 +122,83 @@ class Graph:
         self.__edge_cnt += 1
 
     def count_edges(self, u: int) -> int:
+        """
+        Returns the number of edges incident to vertex `u`.
+
+        Args:
+            u (int): The vertex.
+
+        Returns:
+            int: The number of edges incident to vertex `u`.
+
+        Raises:
+            ValueError: If the vertex is invalid.
+        """
         if u not in range(self.vertices):
             raise ValueError("Invalid vertex")
         return len(self.__edges[u])
 
     def count_edge(self, u: int, v: int) -> int:
+        """
+        Returns the number of edges between vertices `u` and `v`.
+
+        Args:
+            u (int): The source vertex.
+            v (int): The destination vertex.
+
+        Returns:
+            int: The number of edges between vertices `u` and `v`.
+
+        Raises:
+            ValueError: If the vertices are invalid or edge count is not enabled.
+        """
         if self.__edge_set is None:
-            raise ValueError("Edge set is not enabled")
+            raise ValueError("Edge count is not enabled")
+        if u not in range(self.vertices) or v not in range(self.vertices):
+            raise ValueError("Invalid vertex")
         return self.__edge_set[(u, v)]
 
     def shuffle_nodes(
-        self,
-        shuffle: Callable[[int], Sequence[int]] = lambda x: random.sample(range(x), x),
+        self, shuffle: Optional[Callable[[int], Sequence[int]]] = None
     ) -> "Graph":
-        mapping = shuffle(self.vertices)
+        """
+        Shuffles the vertices of the graph.
+
+        Args:
+            shuffle (Callable[[int], Sequence[int]], optional): A function to shuffle the vertices. Defaults to None.
+
+        Returns:
+            Graph: A new graph with shuffled vertices.
+        """
+        mapping = (
+            random.sample(range(self.vertices), self.vertices)
+            if shuffle is None
+            else shuffle(self.vertices)
+        )
         new_graph = Graph(self.vertices, self.directed, edge_count=self.edge_countable)
         for u, v, w in self.get_edges():
             new_graph.add_edge(mapping[u], mapping[v], w)
         return new_graph
 
     def copy(self) -> "Graph":
+        """
+        Returns a deep copy of the graph.
+
+        Returns:
+            Graph: A deep copy of the graph.
+        """
         new_graph = Graph(self.vertices, self.directed, edge_count=self.edge_countable)
         for u, v, w in self.get_edges():
             new_graph.add_edge(u, v, w)
         return new_graph
 
     def transpose(self) -> "Graph":
+        """
+        Returns the transpose of the graph.
+
+        Returns:
+            Graph: The transpose of the graph.
+        """
         if not self.directed:
             raise ValueError("Cannot transpose an undirected graph")
         new_graph = Graph(self.vertices, self.directed, edge_count=self.edge_countable)
@@ -115,8 +210,15 @@ class Graph:
         self,
         *,
         shuffle: bool = False,
-        printer: Union[Callable[[int, int, Any], str], None] = None,
+        printer: Optional[Callable[[int, int, Any], str]] = None,
     ) -> str:
+        """
+        Returns a string representation of the graph.
+
+        Args:
+            shuffle (bool, optional): If True, shuffles the edges. Defaults to False.
+            printer (Callable[[int, int, Any], str], optional): A function to format the edges. Defaults to `f"{u} {v} {w}"`.
+        """
         if printer is None:
             printer = lambda u, v, w: f"{u} {v}" if w is None else f"{u} {v} {w}"
         output = [printer(u, v, w) for u, v, w in self.get_edges()]
@@ -126,6 +228,13 @@ class Graph:
 
     @staticmethod
     def null(size: int, *, directed: bool = False) -> "Graph":
+        """
+        Returns a null graph with `size` vertices.
+
+        Args:
+            size (int): The number of vertices.
+            directed (bool, optional): Specifies whether the graph is directed. Defaults to False.
+        """
         return Graph(size, directed)
 
     @staticmethod
@@ -134,8 +243,19 @@ class Graph:
         *,
         directed: bool = False,
         self_loop: bool = False,
-        weight_gener: Callable[[int, int], Any] = lambda u, v: None,
+        weight_gener: Optional[Callable[[int, int], Any]] = None,
     ) -> "Graph":
+        """
+        Returns a complete graph with `size` vertices.
+
+        Args:
+            size (int): The number of vertices.
+            directed (bool, optional): Specifies whether the graph is directed. Defaults to False.
+            self_loop (bool, optional): Specifies whether self-loops are allowed. Defaults to False.
+            weight_gener (Callable[[int, int], Any], optional): A function to generate edge weights. Defaults to None.
+        """
+        if weight_gener is None:
+            weight_gener = lambda u, v: None
         graph = Graph(size, directed)
         for u in range(size):
             for v in range(size) if directed else range(u, size):
@@ -146,8 +266,17 @@ class Graph:
     @staticmethod
     def tournament(
         size: int,
-        weight_gener: Callable[[int, int], Any] = lambda u, v: None,
+        weight_gener: Optional[Callable[[int, int], Any]] = None,
     ) -> "Graph":
+        """
+        Returns a tournament graph with `size` vertices.
+
+        Args:
+            size (int): The number of vertices.
+            weight_gener (Callable[[int, int], Any], optional): A function to generate edge weights. Defaults to None.
+        """
+        if weight_gener is None:
+            weight_gener = lambda u, v: None
         graph = Graph(size, True)
         for u in range(size):
             for v in range(u + 1, size):
@@ -160,8 +289,16 @@ class Graph:
         size: int,
         *,
         directed: bool = False,
-        weight_gener: Callable[[int, int], Any] = lambda u, v: None,
+        weight_gener: Optional[Callable[[int, int], Any]] = None,
     ) -> "Graph":
+        """
+        Returns a chain graph with `size` vertices.
+
+        Args:
+            size (int): The number of vertices.
+            directed (bool, optional): Specifies whether the graph is directed. Defaults to False.
+            weight_gener (Callable[[int, int], Any], optional): A function to generate edge weights. Defaults to None.
+        """
         return Graph.tree(size, 1.0, 0.0, directed=directed, weight_gener=weight_gener)
 
     @staticmethod
@@ -169,8 +306,16 @@ class Graph:
         size: int,
         *,
         directed: bool = False,
-        weight_gener: Callable[[int, int], Any] = lambda u, v: None,
+        weight_gener: Optional[Callable[[int, int], Any]] = None,
     ) -> "Graph":
+        """
+        Returns a star graph with `size` vertices.
+
+        Args:
+            size (int): The number of vertices.
+            directed (bool, optional): Specifies whether the graph is directed. Defaults to False.
+            weight_gener (Callable[[int, int], Any], optional): A function to generate edge weights. Defaults to None.
+        """
         return Graph.tree(size, 0.0, 1.0, directed=directed, weight_gener=weight_gener)
 
     @staticmethod
@@ -180,11 +325,26 @@ class Graph:
         star: float = 0.0,
         *,
         directed: bool = False,
-        weight_gener: Callable[[int, int], Any] = lambda u, v: None,
-        father_gener: Callable[[int], int] = lambda u: random.randint(0, u - 1),
+        weight_gener: Optional[Callable[[int, int], Any]] = None,
+        father_gener: Optional[Callable[[int], int]] = None,
     ) -> "Graph":
+        """
+        Returns a tree graph with `size` vertices.
+
+        Args:
+            size (int): The number of vertices.
+            chain (float, optional): The proportion of chain edges. Defaults to 0.0.
+            star (float, optional): The proportion of star edges. Defaults to 0.0.
+            directed (bool, optional): Specifies whether the graph is directed. Defaults to False.
+            weight_gener (Callable[[int, int], Any], optional): A function to generate edge weights. Defaults to None.
+            father_gener (Callable[[int], int], optional): A function to generate parent vertices. Defaults to None.
+        """
         if chain + star > 1.0 or chain < 0.0 or star < 0.0:
             raise ValueError("Invalid parameters")
+        if weight_gener is None:
+            weight_gener = lambda u, v: None
+        if father_gener is None:
+            father_gener = lambda u: random.randint(0, u - 1)
         chain_cnt = int((size - 1) * chain)
         star_cnt = int((size - 1) * star)
         tree = Graph(size, directed)
@@ -200,12 +360,24 @@ class Graph:
     @staticmethod
     def binary_tree(
         size: int,
-        left: Union[float, None] = None,
-        right: Union[float, None] = None,
+        left: Optional[float] = None,
+        right: Optional[float] = None,
         *,
         directed: bool = False,
-        weight_gener: Callable[[int, int], Any] = lambda u, v: None,
+        weight_gener: Optional[Callable[[int, int], Any]] = None,
     ) -> "Graph":
+        """
+        Returns a binary tree graph with `size` vertices.
+
+        Args:
+            size (int): The number of vertices.
+            left (float, optional): The proportion of left edges. Defaults to None.
+            right (float, optional): The proportion of right edges. Defaults to None.
+            directed (bool, optional): Specifies whether the graph is directed. Defaults to False.
+            weight_gener (Callable[[int, int], Any], optional): A function to generate edge weights. Defaults to None.
+        """
+        if weight_gener is None:
+            weight_gener = lambda u, v: None
         if left is None and right is None:
             rnk = 0.5
         elif left is None:
@@ -233,8 +405,17 @@ class Graph:
     def union_tree(
         size: int,
         *,
-        weight_gener: Callable[[int, int], Any] = lambda u, v: None,
+        weight_gener: Optional[Callable[[int, int], Any]] = None,
     ) -> "Graph":
+        """
+        Returns a union tree graph with `size` vertices.
+
+        Args:
+            size (int): The number of vertices.
+            weight_gener (Callable[[int, int], Any], optional): A function to generate edge weights. Defaults to None.
+        """
+        if weight_gener is None:
+            weight_gener = lambda u, v: None
         tree = Graph(size)
         dsu_instance = dsu(size)
         while tree.edges < size - 1:
