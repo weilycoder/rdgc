@@ -464,6 +464,10 @@ class Graph:
         left: Optional[float] = None,
         right: Optional[float] = None,
         *,
+        root: int = 0,
+        root_rank: Any = 0,
+        left_rank: Any = -1,
+        right_rank: Any = 1,
         directed: bool = False,
         weight_gener: Optional[Callable[[int, int], Any]] = None,
     ) -> "Graph":
@@ -474,9 +478,21 @@ class Graph:
             size (int): The number of vertices.
             left (float, optional): The proportion of left edges. Defaults to None.
             right (float, optional): The proportion of right edges. Defaults to None.
+            root (int, optional): The root vertex. Defaults to 0.
+            root_rank (Any, optional): The rank of the root vertex. Defaults to 0.
+            left_rank (Any, optional): The rank of the left child. Defaults to -1.
+            right_rank (Any, optional): The rank of the right child. Defaults to 1.
             directed (bool, optional): Specifies whether the graph is directed. Defaults to False.
             weight_gener (Callable[[int, int], Any], optional): A function to generate edge weights. Defaults to None.
+
+        Raises:
+            ValueError: If the root vertex is invalid.
+
+        Returns:
+            Graph: A binary tree graph with `size` vertices.
         """
+        if root < 0 or root >= size:
+            raise ValueError("Invalid root")
         if weight_gener is None:
             weight_gener = lambda u, v: None
         if left is None and right is None:
@@ -488,14 +504,19 @@ class Graph:
         else:
             rnk = left / (left + right)
         tree = Graph(size, directed)
-        left_rt, right_rt = [0], [0]
-        for i in range(1, size):
+        left_rt, right_rt = [root], [root]
+        for i in range(size):
+            if i == root:
+                tree.set_rank(i, root_rank)
+                continue
             if random.random() < rnk:
+                tree.set_rank(i, left_rank)
                 rt = random.randrange(len(left_rt))
                 tree.add_edge(i, left_rt[rt], weight_gener(i, left_rt[rt]))
                 left_rt[rt] = i
                 right_rt.append(i)
             else:
+                tree.set_rank(i, right_rank)
                 rt = random.randrange(len(right_rt))
                 tree.add_edge(i, right_rt[rt], weight_gener(i, right_rt[rt]))
                 right_rt[rt] = i
