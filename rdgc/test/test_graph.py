@@ -174,3 +174,12 @@ class TestGraph(unittest.TestCase):
         Graph.connected(N, N - 1)
         with self.assertRaises(ValueError):
             Graph.connected(N, N - 2)
+
+    def test_cycle(self):
+        N = 20
+        for _ in range(10):
+            graph = Graph.cycle(N)
+            self.assertEqual(graph.vertices, N)
+            self.assertEqual(graph.edges, N)
+            for u in range(N):
+                self.assertEqual(graph.count_edge(u, (u + 1) % N), 1)

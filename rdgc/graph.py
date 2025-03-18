@@ -448,6 +448,31 @@ class Graph:
         return tree
 
     @staticmethod
+    def cycle(
+        size: int,
+        *,
+        directed: bool = False,
+        weight_gener: Optional[Callable[[int, int], Any]] = None,
+    ) -> "Graph":
+        """
+        Returns a cycle graph with `size` vertices.
+
+        Args:
+            size (int): The number of vertices.
+            directed (bool, optional): Specifies whether the graph is directed. Defaults to False.
+            weight_gener (Callable[[int, int], Any], optional): A function to generate edge weights. Defaults to None.
+
+        Returns:
+            Graph: A cycle graph with `size` vertices.
+        """
+        if weight_gener is None:
+            weight_gener = lambda u, v: None
+        graph = Graph(size, directed)
+        for u in range(size):
+            graph.add_edge(u, (u + 1) % size, weight_gener(u, (u + 1) % size))
+        return graph
+
+    @staticmethod
     def connected(
         size: int,
         edge_count: int,
