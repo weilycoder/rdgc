@@ -473,6 +473,33 @@ class Graph:
         return graph
 
     @staticmethod
+    def wheel(
+        size: int,
+        *,
+        directed: bool = False,
+        weight_gener: Optional[Callable[[int, int], Any]] = None,
+    ) -> "Graph":
+        """
+        Returns a wheel graph with `size` vertices.
+
+        Args:
+            size (int): The number of vertices.
+            directed (bool, optional): Specifies whether the graph is directed. Defaults to False.
+            weight_gener (Callable[[int, int], Any], optional): A function to generate edge weights. Defaults to None.
+
+        Returns:
+            Graph: A wheel graph with `size` vertices.
+        """
+        if weight_gener is None:
+            weight_gener = lambda u, v: None
+        graph = Graph(size, directed)
+        for u in range(1, size):
+            graph.add_edge(0, u, weight_gener(0, u))
+        for u in range(1, size):
+            graph.add_edge(u, u % (size - 1) + 1, weight_gener(u, u % (size - 1) + 1))
+        return graph
+
+    @staticmethod
     def connected(
         size: int,
         edge_count: int,

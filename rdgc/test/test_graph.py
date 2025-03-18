@@ -183,3 +183,14 @@ class TestGraph(unittest.TestCase):
             self.assertEqual(graph.edges, N)
             for u in range(N):
                 self.assertEqual(graph.count_edge(u, (u + 1) % N), 1)
+
+    def test_wheel(self):
+        N = 20
+        for _ in range(10):
+            graph = Graph.wheel(N)
+            self.assertEqual(graph.vertices, N)
+            self.assertEqual(graph.edges, 2 * N - 2)
+            self.assertEqual(graph.count_edges(0), N - 1)
+            for u in range(1, N):
+                self.assertEqual(graph.count_edge(0, u), 1)
+                self.assertEqual(graph.count_edge(u, u % (N - 1) + 1), 1)
