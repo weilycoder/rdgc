@@ -141,5 +141,36 @@ class TestGraph(unittest.TestCase):
     def test_random(self):
         N = 20
         # Test graph with too many edges
+        Graph.random(
+            N,
+            Graph._calc_max_edge(N, True, False),  # type: ignore
+            directed=True,
+            self_loop=False,
+        )
         with self.assertRaises(ValueError):
             Graph.random(N, N * N, directed=True)
+
+    def test_connected(self):
+        N = 20
+        graph = Graph.connected(N, N * N // 4)
+        self.assertEqual(graph.vertices, N)
+        self.assertEqual(graph.edges, N * N // 4)
+        self.assert_connected(graph)
+        for _ in range(10):
+            graph = Graph.connected(N, N + 1, directed=True)
+            self.assertEqual(graph.vertices, N)
+            self.assertEqual(graph.edges, N + 1)
+            self.assert_connected
+        # Test graph with too many edges
+        Graph.connected(
+            N,
+            Graph._calc_max_edge(N, True, False),  # type: ignore
+            directed=True,
+            self_loop=False,
+        )
+        with self.assertRaises(ValueError):
+            Graph.connected(N, N * N, directed=True)
+        # Test graph with too few edges
+        Graph.connected(N, N - 1)
+        with self.assertRaises(ValueError):
+            Graph.connected(N, N - 2)

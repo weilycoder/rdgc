@@ -431,6 +431,38 @@ class Graph:
         return tree
 
     @staticmethod
+    def connected(
+        size: int,
+        edge_count: int,
+        *,
+        directed: bool = False,
+        self_loop: bool = False,
+        multiedge: bool = False,
+        weight_gener: Optional[Callable[[int, int], Any]] = None,
+    ) -> "Graph":
+        if weight_gener is None:
+            weight_gener = lambda u, v: None
+        if edge_count < size - 1:
+            raise ValueError(f"Too few edges: {edge_count} < {size - 1}")
+        if not multiedge:
+            max_edge = Graph._calc_max_edge(size, directed, self_loop)
+            if edge_count > max_edge:
+                raise ValueError(f"Too many edges: {edge_count} > {max_edge}")
+        graph = Graph(size, directed)
+        for u, v, _ in Graph.union_tree(size).get_edges():
+            u, v = sorted((u, v))
+            graph.add_edge(u, v, weight_gener(u, v))
+        while graph.edges < edge_count:
+            u, v = (
+                random.sample(range(size), 2)
+                if not self_loop
+                else random.choices(range(size), k=2)
+            )
+            if multiedge or graph.count_edge(u, v) == 0:
+                graph.add_edge(u, v, weight_gener(u, v))
+        return graph
+
+    @staticmethod
     def _calc_max_edge(size: int, directed: bool, self_loop: bool):
         max_edge = size * (size - 1)
         if not directed:
