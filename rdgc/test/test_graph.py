@@ -115,3 +115,31 @@ class TestGraph(unittest.TestCase):
         graph = Graph.union_tree(N)
         self.assertEqual(graph.vertices, N)
         self.assertEqual(graph.edges, N - 1)
+        self.assert_connected(graph)
+
+    def test_self_loop(self):
+        N = 20
+        for _ in range(4):
+            graph = Graph.random(N, N * N // 4, self_loop=True)
+            flag = False
+            for u in range(N):
+                if graph.count_edge(u, u) > 0:
+                    flag = True
+            if flag:
+                break
+        else:
+            self.fail("No loops")
+
+    def test_mutiedges(self):
+        N = 20
+        for _ in range(4):
+            graph = Graph.random(N, N * N, multiedge=True)
+            self.assertEqual(graph.vertices, N)
+            self.assertEqual(graph.edges, N * N)
+            self.assertTrue(len(set(graph.get_edges())) < graph.edges)
+
+    def test_random(self):
+        N = 20
+        # Test graph with too many edges
+        with self.assertRaises(ValueError):
+            Graph.random(N, N * N, directed=True)

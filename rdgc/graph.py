@@ -135,7 +135,7 @@ class Graph:
         """
         if u not in range(self.vertices) or v not in range(self.vertices):
             raise ValueError("Invalid vertex")
-        return self.__edge_set[(u, v)]
+        return 0 if (u, v) not in self.__edge_set else self.__edge_set[(u, v)]
 
     def shuffle_nodes(
         self, shuffle: Optional[Callable[[int], Sequence[int]]] = None
@@ -261,6 +261,33 @@ class Graph:
             for v in range(u + 1, size):
                 i, j = random.sample((u, v), 2)
                 graph.add_edge(i, j, weight_gener(i, j))
+        return graph
+
+    @staticmethod
+    def random(
+        size: int,
+        edge_count: int,
+        *,
+        directed: bool = False,
+        self_loop: bool = False,
+        multiedge: bool = False,
+        weight_gener: Optional[Callable[[int, int], Any]] = None,
+    ) -> "Graph":
+        graph = Graph(size, directed)
+        if weight_gener is None:
+            weight_gener = lambda u, v: None
+        if not multiedge:
+            max_edge = Graph._calc_max_edge(size, directed, self_loop)
+            if edge_count > max_edge:
+                raise ValueError(f"Too many edges: {edge_count} > {max_edge}")
+        while graph.edges < edge_count:
+            u, v = (
+                random.sample(range(size), 2)
+                if not self_loop
+                else random.choices(range(size), k=2)
+            )
+            if multiedge or graph.count_edge(u, v) == 0:
+                graph.add_edge(u, v, weight_gener(u, v))
         return graph
 
     @staticmethod
@@ -402,3 +429,12 @@ class Graph:
             if dsu_instance.union(u, v):
                 tree.add_edge(u, v, weight_gener(u, v))
         return tree
+
+    @staticmethod
+    def _calc_max_edge(size: int, directed: bool, self_loop: bool):
+        max_edge = size * (size - 1)
+        if not directed:
+            max_edge //= 2
+        if self_loop:
+            max_edge += size
+        return max_edge
