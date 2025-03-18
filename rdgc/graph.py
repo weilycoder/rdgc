@@ -273,6 +273,23 @@ class Graph:
         multiedge: bool = False,
         weight_gener: Optional[Callable[[int, int], Any]] = None,
     ) -> "Graph":
+        """
+        Returns a random graph with `size` vertices and `edge_count` edges.
+
+        Args:
+            size (int): The number of vertices.
+            edge_count (int): The number of edges.
+            directed (bool, optional): Specifies whether the graph is directed. Defaults to False.
+            self_loop (bool, optional): Specifies whether self-loops are allowed. Defaults to False.
+            multiedge (bool, optional): Specifies whether multiple edges are allowed. Defaults to False.
+            weight_gener (Callable[[int, int], Any], optional): A function to generate edge weights. Defaults to None.
+
+        Raises:
+            ValueError: If the number of edges is invalid.
+
+        Returns:
+            Graph: A random graph with `size` vertices and `edge_count` edges.
+        """
         graph = Graph(size, directed)
         if weight_gener is None:
             weight_gener = lambda u, v: None
@@ -440,6 +457,23 @@ class Graph:
         multiedge: bool = False,
         weight_gener: Optional[Callable[[int, int], Any]] = None,
     ) -> "Graph":
+        """
+        Returns a connected graph with `size` vertices and `edge_count` edges.
+
+        Args:
+            size (int): The number of vertices.
+            edge_count (int): The number of edges.
+            directed (bool, optional): Specifies whether the graph is directed. Defaults to False.
+            self_loop (bool, optional): Specifies whether self-loops are allowed. Defaults to False.
+            multiedge (bool, optional): Specifies whether multiple edges are allowed. Defaults to False.
+            weight_gener (Callable[[int, int], Any], optional): A function to generate edge weights. Defaults to None.
+
+        Raises:
+            ValueError: If the number of edges is invalid.
+
+        Returns:
+            Graph: A connected graph with `size` vertices and `edge_count` edges.
+        """
         if weight_gener is None:
             weight_gener = lambda u, v: None
         if edge_count < size - 1:
