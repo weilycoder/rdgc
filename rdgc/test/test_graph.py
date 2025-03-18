@@ -36,7 +36,7 @@ class TestGraph(unittest.TestCase):
         self.assertNotEqual(graph.output(), shuffled.output())
 
     def test_count(self):
-        graph = Graph(3, edge_count=True)
+        graph = Graph(3)
         graph.add_edge(0, 1)
         graph.add_edge(1, 2)
         graph.add_edge(2, 0)

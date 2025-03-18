@@ -13,11 +13,9 @@ class Graph:
     __directed: bool
     __edge_cnt: int
     __edges: List[List[Any]]
-    __edge_set: Optional[Dict[Tuple[int, int], int]]
+    __edge_set: Dict[Tuple[int, int], int]
 
-    def __init__(
-        self, vertices: int, directed: bool = False, *, edge_count: bool = False
-    ):
+    def __init__(self, vertices: int, directed: bool = False):
         """
         Initializes a graph object.
 
@@ -40,7 +38,7 @@ class Graph:
         self.__directed = directed
         self.__edge_cnt = 0
         self.__edges = [[] for _ in range(vertices)]
-        self.__edge_set = defaultdict(int) if edge_count else None
+        self.__edge_set = defaultdict(int)
 
     @property
     def edges(self) -> int:
@@ -57,28 +55,11 @@ class Graph:
         """Returns True if the graph is directed, otherwise False."""
         return self.__directed
 
-    @property
-    def edge_countable(self) -> bool:
-        """Returns True if edge count is enabled, otherwise False."""
-        return self.__edge_set is not None
-
     def __add_edge(self, u: int, v: int) -> None:
         """Increments the edge count between vertices `u` and `v`."""
-        if self.__edge_set is not None:
-            self.__edge_set[(u, v)] += 1
-            if not self.__directed and u != v:
-                self.__edge_set[(v, u)] += 1
-
-    def enable_edge_count(self) -> None:
-        """Enables edge count tracking."""
-        if self.__edge_set is None:
-            self.__edge_set = defaultdict(int)
-            for u, v, _ in self.get_edges():
-                self.__add_edge(u, v)
-
-    def disable_edge_count(self) -> None:
-        """Disables edge count tracking."""
-        self.__edge_set = None
+        self.__edge_set[(u, v)] += 1
+        if not self.__directed and u != v:
+            self.__edge_set[(v, u)] += 1
 
     def get_edges(
         self, u: Union[int, None] = None
@@ -152,8 +133,6 @@ class Graph:
         Raises:
             ValueError: If the vertices are invalid or edge count is not enabled.
         """
-        if self.__edge_set is None:
-            raise ValueError("Edge count is not enabled")
         if u not in range(self.vertices) or v not in range(self.vertices):
             raise ValueError("Invalid vertex")
         return self.__edge_set[(u, v)]
@@ -175,7 +154,7 @@ class Graph:
             if shuffle is None
             else shuffle(self.vertices)
         )
-        new_graph = Graph(self.vertices, self.directed, edge_count=self.edge_countable)
+        new_graph = Graph(self.vertices, self.directed)
         for u, v, w in self.get_edges():
             new_graph.add_edge(mapping[u], mapping[v], w)
         return new_graph
@@ -187,7 +166,7 @@ class Graph:
         Returns:
             Graph: A deep copy of the graph.
         """
-        new_graph = Graph(self.vertices, self.directed, edge_count=self.edge_countable)
+        new_graph = Graph(self.vertices, self.directed)
         for u, v, w in self.get_edges():
             new_graph.add_edge(u, v, w)
         return new_graph
@@ -201,7 +180,7 @@ class Graph:
         """
         if not self.directed:
             raise ValueError("Cannot transpose an undirected graph")
-        new_graph = Graph(self.vertices, self.directed, edge_count=self.edge_countable)
+        new_graph = Graph(self.vertices, self.directed)
         for u, v, w in self.get_edges():
             new_graph.add_edge(v, u, w)
         return new_graph
