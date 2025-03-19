@@ -721,6 +721,7 @@ class Graph:
         *args: Any,
         directed: bool = False,
         self_loop: bool = False,
+        cycle: bool = False,
         multiedge: bool = False,
         weight_gener: Optional[Callable[[int, int], Any]] = None,
         **kwargs: Any,
@@ -747,12 +748,16 @@ class Graph:
         """
         if args or kwargs:
             warnings.warn("Extra arguments are ignored", RuntimeWarning, 2)
+        if cycle and not directed:
+            warnings.warn(
+                "Argument `cycle` is ignored for undirected graphs", RuntimeWarning, 2
+            )
         if weight_gener is None:
             weight_gener = lambda u, v: None
         if edge_count < size - 1:
             raise ValueError(f"Too few edges: {edge_count} < {size - 1}")
         if not multiedge:
-            max_edge = Graph._calc_max_edge(size, directed, self_loop)
+            max_edge = Graph._calc_max_edge(size, directed and cycle, self_loop)
             if edge_count > max_edge:
                 raise ValueError(f"Too many edges: {edge_count} > {max_edge}")
         graph = Graph(size, directed)
@@ -765,6 +770,8 @@ class Graph:
                 if not self_loop
                 else random.choices(range(size), k=2)
             )
+            if not cycle:
+                u, v = sorted((u, v))
             if multiedge or graph.count_edge(u, v) == 0:
                 graph.add_edge(u, v, weight_gener(u, v))
         return graph
