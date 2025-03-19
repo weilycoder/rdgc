@@ -167,14 +167,16 @@ class TestGraph(unittest.TestCase):
             graph = Graph.connected(N, N + 1, directed=True)
             self.assertEqual(graph.vertices, N)
             self.assertEqual(graph.edges, N + 1)
-            self.assert_connected
+            self.assert_connected(graph)
         # Test graph with too many edges
-        Graph.connected(
+        graph = Graph.connected(
             N,
-            Graph._calc_max_edge(N, True, False),  # type: ignore
+            Graph._calc_max_edge(N, False, False),  # type: ignore
             directed=True,
             self_loop=False,
         )
+        for u, v, _ in graph.get_edges():
+            self.assertTrue(u < v)
         with self.assertRaises(ValueError):
             Graph.connected(N, N * N, directed=True)
         # Test graph with too few edges
