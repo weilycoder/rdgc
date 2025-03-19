@@ -3,6 +3,7 @@ name = "rdgc"
 version = "0.1.0"
 description = "RDGC Data Generator for Contests"
 authors = ["weilycoder <weily2009@outlook.com>"]
+readme = "README.md"
 license = "SATA"
 
 [tool.poetry.dependencies]
