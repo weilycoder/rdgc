@@ -548,7 +548,7 @@ class Graph:
         return tree
 
     @staticmethod
-    def union_tree(
+    def spanning_tree(
         size: int,
         *,
         weight_gener: Optional[Callable[[int, int], Any]] = None,
@@ -661,7 +661,7 @@ class Graph:
             if edge_count > max_edge:
                 raise ValueError(f"Too many edges: {edge_count} > {max_edge}")
         graph = Graph(size, directed)
-        for u, v, _ in Graph.union_tree(size).get_edges():
+        for u, v, _ in Graph.spanning_tree(size).get_edges():
             u, v = sorted((u, v))
             graph.add_edge(u, v, weight_gener(u, v))
         while graph.edges < edge_count:

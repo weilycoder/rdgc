@@ -119,7 +119,7 @@ class TestGraph(unittest.TestCase):
 
     def test_union_tree(self):
         N = 20
-        graph = Graph.union_tree(N)
+        graph = Graph.spanning_tree(N)
         self.assertEqual(graph.vertices, N)
         self.assertEqual(graph.edges, N - 1)
         self.assert_connected(graph)
