@@ -356,6 +356,7 @@ class Graph:
             warnings.warn("Extra arguments are ignored", RuntimeWarning, 2)
         if weight_gener is None:
             weight_gener = lambda u, v: None
+
         graph = Graph(size, directed)
         for u in range(size):
             for v in range(size) if directed else range(u, size):
@@ -387,6 +388,7 @@ class Graph:
             warnings.warn("Extra arguments are ignored", RuntimeWarning, 2)
         if weight_gener is None:
             weight_gener = lambda u, v: None
+
         graph = Graph(size, True)
         for u in range(size):
             for v in range(u + 1, size):
@@ -427,13 +429,15 @@ class Graph:
         """
         if args or kwargs:
             warnings.warn("Extra arguments are ignored", RuntimeWarning, 2)
-        graph = Graph(size, directed)
         if weight_gener is None:
             weight_gener = lambda u, v: None
+
         if not multiedge:
             max_edge = Graph._calc_max_edge(size, directed, self_loop)
             if edge_count > max_edge:
                 raise ValueError(f"Too many edges: {edge_count} > {max_edge}")
+
+        graph = Graph(size, directed)
         while graph.edges < edge_count:
             u, v = (
                 random.sample(range(size), 2)
@@ -531,10 +535,12 @@ class Graph:
             warnings.warn("Extra arguments are ignored", RuntimeWarning, 2)
         if chain + star > 1.0 or chain < 0.0 or star < 0.0:
             raise ValueError("Invalid parameters")
+
         if weight_gener is None:
             weight_gener = lambda u, v: None
         if father_gener is None:
             father_gener = lambda u: random.randint(0, u - 1)
+
         chain_cnt = int((size - 1) * chain)
         star_cnt = int((size - 1) * star)
         tree = Graph(size, directed)
@@ -588,6 +594,7 @@ class Graph:
             warnings.warn("Extra arguments are ignored", RuntimeWarning, 2)
         if root < 0 or root >= size:
             raise ValueError("Invalid root")
+
         if weight_gener is None:
             weight_gener = lambda u, v: None
         if left is None and right is None:
@@ -598,6 +605,7 @@ class Graph:
             rnk = left
         else:
             rnk = left / (left + right)
+
         tree = Graph(size, directed)
         left_rt, right_rt = [root], [root]
         for i in range(size):
@@ -642,6 +650,7 @@ class Graph:
             warnings.warn("Extra arguments are ignored", RuntimeWarning, 2)
         if weight_gener is None:
             weight_gener = lambda u, v: None
+
         tree = Graph(size)
         dsu_instance = dsu(size)
         while tree.edges < size - 1:
@@ -676,6 +685,7 @@ class Graph:
             warnings.warn("Extra arguments are ignored", RuntimeWarning, 2)
         if weight_gener is None:
             weight_gener = lambda u, v: None
+
         graph = Graph(size, directed)
         for u in range(size):
             graph.add_edge(u, (u + 1) % size, weight_gener(u, (u + 1) % size))
@@ -707,6 +717,7 @@ class Graph:
             warnings.warn("Extra arguments are ignored", RuntimeWarning, 2)
         if weight_gener is None:
             weight_gener = lambda u, v: None
+
         graph = Graph(size, directed)
         for u in range(1, size):
             graph.add_edge(0, u, weight_gener(0, u))
@@ -752,14 +763,17 @@ class Graph:
             warnings.warn(
                 "Argument `cycle` is ignored for undirected graphs", RuntimeWarning, 2
             )
-        if weight_gener is None:
-            weight_gener = lambda u, v: None
+
         if edge_count < size - 1:
             raise ValueError(f"Too few edges: {edge_count} < {size - 1}")
         if not multiedge:
             max_edge = Graph._calc_max_edge(size, directed and cycle, self_loop)
             if edge_count > max_edge:
                 raise ValueError(f"Too many edges: {edge_count} > {max_edge}")
+
+        if weight_gener is None:
+            weight_gener = lambda u, v: None
+
         graph = Graph(size, directed)
         for u, v, _ in Graph.spanning_tree(size).get_edges():
             u, v = sorted((u, v))
