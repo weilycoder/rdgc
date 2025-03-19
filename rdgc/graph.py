@@ -1,6 +1,7 @@
 import itertools
 import random
 from collections import defaultdict
+import warnings
 
 from .utils import dsu, filter_none
 
@@ -11,6 +12,23 @@ __all__ = ["Graph"]
 
 
 class Graph:
+    """A class to represent a graph."""
+
+    GRAPH_TYPES = (
+        "null",
+        "complete",
+        "tournament",
+        "random",
+        "chain",
+        "star",
+        "tree",
+        "binary_tree",
+        "spanning_tree",
+        "cycle",
+        "wheel",
+        "connected",
+    )
+
     __directed: bool
     __edge_cnt: int
     __ver_rnk: List[Any]
@@ -287,7 +305,12 @@ class Graph:
         return sep.join(filter_none(edge_output))
 
     @staticmethod
-    def null(size: int, *, directed: bool = False) -> "Graph":
+    def null(
+        size: int,
+        *args: Any,
+        directed: bool = False,
+        **kwargs: Any,
+    ) -> "Graph":
         """
         Returns a null graph with `size` vertices.
 
@@ -295,18 +318,24 @@ class Graph:
             size (int): The number of vertices.
             directed (bool, optional): Specifies whether the graph is directed. Defaults to False.
 
+        Warnings:
+            RuntimeWarning: If extra arguments are provided.
+
         Returns:
             Graph: A null graph with `size` vertices.
         """
+        if args or kwargs:
+            warnings.warn("Extra arguments are ignored", RuntimeWarning, 2)
         return Graph(size, directed)
 
     @staticmethod
     def complete(
         size: int,
-        *,
+        *args: Any,
         directed: bool = False,
         self_loop: bool = False,
         weight_gener: Optional[Callable[[int, int], Any]] = None,
+        **kwargs: Any,
     ) -> "Graph":
         """
         Returns a complete graph with `size` vertices.
@@ -317,9 +346,14 @@ class Graph:
             self_loop (bool, optional): Specifies whether self-loops are allowed. Defaults to False.
             weight_gener (Callable[[int, int], Any], optional): A function to generate edge weights. Defaults to None.
 
+        Warnings:
+            RuntimeWarning: If extra arguments are provided.
+
         Returns:
             Graph: A complete graph with `size` vertices.
         """
+        if args or kwargs:
+            warnings.warn("Extra arguments are ignored", RuntimeWarning, 2)
         if weight_gener is None:
             weight_gener = lambda u, v: None
         graph = Graph(size, directed)
@@ -332,7 +366,9 @@ class Graph:
     @staticmethod
     def tournament(
         size: int,
+        *args: Any,
         weight_gener: Optional[Callable[[int, int], Any]] = None,
+        **kwargs: Any,
     ) -> "Graph":
         """
         Returns a tournament graph with `size` vertices.
@@ -341,9 +377,14 @@ class Graph:
             size (int): The number of vertices.
             weight_gener (Callable[[int, int], Any], optional): A function to generate edge weights. Defaults to None.
 
+        Warnings:
+            RuntimeWarning: If extra arguments are provided.
+
         Returns:
             Graph: A tournament graph with `size` vertices.
         """
+        if args or kwargs:
+            warnings.warn("Extra arguments are ignored", RuntimeWarning, 2)
         if weight_gener is None:
             weight_gener = lambda u, v: None
         graph = Graph(size, True)
@@ -357,11 +398,12 @@ class Graph:
     def random(
         size: int,
         edge_count: int,
-        *,
+        *args: Any,
         directed: bool = False,
         self_loop: bool = False,
         multiedge: bool = False,
         weight_gener: Optional[Callable[[int, int], Any]] = None,
+        **kwargs: Any,
     ) -> "Graph":
         """
         Returns a random graph with `size` vertices and `edge_count` edges.
@@ -377,9 +419,14 @@ class Graph:
         Raises:
             ValueError: If the number of edges is invalid.
 
+        Warnings:
+            RuntimeWarning: If extra arguments are provided
+
         Returns:
             Graph: A random graph with `size` vertices and `edge_count` edges.
         """
+        if args or kwargs:
+            warnings.warn("Extra arguments are ignored", RuntimeWarning, 2)
         graph = Graph(size, directed)
         if weight_gener is None:
             weight_gener = lambda u, v: None
@@ -400,9 +447,10 @@ class Graph:
     @staticmethod
     def chain(
         size: int,
-        *,
+        *args: Any,
         directed: bool = False,
         weight_gener: Optional[Callable[[int, int], Any]] = None,
+        **kwargs: Any,
     ) -> "Graph":
         """
         Returns a chain graph with `size` vertices.
@@ -412,17 +460,23 @@ class Graph:
             directed (bool, optional): Specifies whether the graph is directed. Defaults to False.
             weight_gener (Callable[[int, int], Any], optional): A function to generate edge weights. Defaults to None.
 
+        Warnings:
+            RuntimeWarning: If extra arguments are provided.
+
         Returns:
             Graph: A chain graph with `size` vertices.
         """
+        if args or kwargs:
+            warnings.warn("Extra arguments are ignored", RuntimeWarning, 2)
         return Graph.tree(size, 1.0, 0.0, directed=directed, weight_gener=weight_gener)
 
     @staticmethod
     def star(
         size: int,
-        *,
+        *args: Any,
         directed: bool = False,
         weight_gener: Optional[Callable[[int, int], Any]] = None,
+        **kwargs: Any,
     ) -> "Graph":
         """
         Returns a star graph with `size` vertices.
@@ -432,9 +486,14 @@ class Graph:
             directed (bool, optional): Specifies whether the graph is directed. Defaults to False.
             weight_gener (Callable[[int, int], Any], optional): A function to generate edge weights. Defaults to None.
 
+        Warnings:
+            RuntimeWarning: If extra arguments are provided.
+
         Returns:
             Graph: A star graph with `size` vertices.
         """
+        if args or kwargs:
+            warnings.warn("Extra arguments are ignored", RuntimeWarning, 2)
         return Graph.tree(size, 0.0, 1.0, directed=directed, weight_gener=weight_gener)
 
     @staticmethod
@@ -442,10 +501,11 @@ class Graph:
         size: int,
         chain: float = 0.0,
         star: float = 0.0,
-        *,
+        *args: Any,
         directed: bool = False,
         weight_gener: Optional[Callable[[int, int], Any]] = None,
         father_gener: Optional[Callable[[int], int]] = None,
+        **kwargs: Any,
     ) -> "Graph":
         """
         Returns a tree graph with `size` vertices.
@@ -461,9 +521,14 @@ class Graph:
         Raises:
             ValueError: If the parameters are invalid.
 
+        Warnings:
+            RuntimeWarning: If extra arguments are provided.
+
         Returns:
             Graph: A tree graph with `size` vertices.
         """
+        if args or kwargs:
+            warnings.warn("Extra arguments are ignored", RuntimeWarning, 2)
         if chain + star > 1.0 or chain < 0.0 or star < 0.0:
             raise ValueError("Invalid parameters")
         if weight_gener is None:
@@ -487,13 +552,14 @@ class Graph:
         size: int,
         left: Optional[float] = None,
         right: Optional[float] = None,
-        *,
+        *args: Any,
         root: int = 0,
         root_rank: Any = 0,
         left_rank: Any = -1,
         right_rank: Any = 1,
         directed: bool = False,
         weight_gener: Optional[Callable[[int, int], Any]] = None,
+        **kwargs: Any,
     ) -> "Graph":
         """
         Returns a binary tree graph with `size` vertices.
@@ -512,9 +578,14 @@ class Graph:
         Raises:
             ValueError: If the root vertex is invalid.
 
+        Warnings:
+            RuntimeWarning: If extra arguments are provided.
+
         Returns:
             Graph: A binary tree graph with `size` vertices.
         """
+        if args or kwargs:
+            warnings.warn("Extra arguments are ignored", RuntimeWarning, 2)
         if root < 0 or root >= size:
             raise ValueError("Invalid root")
         if weight_gener is None:
@@ -550,8 +621,9 @@ class Graph:
     @staticmethod
     def spanning_tree(
         size: int,
-        *,
+        *args: Any,
         weight_gener: Optional[Callable[[int, int], Any]] = None,
+        **kwargs: Any,
     ) -> "Graph":
         """
         Returns a tree graph with `size` vertices, which is generated by union-find.
@@ -560,9 +632,14 @@ class Graph:
             size (int): The number of vertices.
             weight_gener (Callable[[int, int], Any], optional): A function to generate edge weights. Defaults to None.
 
+        Warnings:
+            RuntimeWarning: If extra arguments are provided.
+
         Returns:
             Graph: A tree graph with `size` vertices.
         """
+        if args or kwargs:
+            warnings.warn("Extra arguments are ignored", RuntimeWarning, 2)
         if weight_gener is None:
             weight_gener = lambda u, v: None
         tree = Graph(size)
@@ -576,9 +653,10 @@ class Graph:
     @staticmethod
     def cycle(
         size: int,
-        *,
+        *args: Any,
         directed: bool = False,
         weight_gener: Optional[Callable[[int, int], Any]] = None,
+        **kwargs: Any,
     ) -> "Graph":
         """
         Returns a cycle graph with `size` vertices.
@@ -588,9 +666,14 @@ class Graph:
             directed (bool, optional): Specifies whether the graph is directed. Defaults to False.
             weight_gener (Callable[[int, int], Any], optional): A function to generate edge weights. Defaults to None.
 
+        Warnings:
+            RuntimeWarning: If extra arguments are provided.
+
         Returns:
             Graph: A cycle graph with `size` vertices.
         """
+        if args or kwargs:
+            warnings.warn("Extra arguments are ignored", RuntimeWarning, 2)
         if weight_gener is None:
             weight_gener = lambda u, v: None
         graph = Graph(size, directed)
@@ -601,9 +684,10 @@ class Graph:
     @staticmethod
     def wheel(
         size: int,
-        *,
+        *args: Any,
         directed: bool = False,
         weight_gener: Optional[Callable[[int, int], Any]] = None,
+        **kwargs: Any,
     ) -> "Graph":
         """
         Returns a wheel graph with `size` vertices.
@@ -613,9 +697,14 @@ class Graph:
             directed (bool, optional): Specifies whether the graph is directed. Defaults to False.
             weight_gener (Callable[[int, int], Any], optional): A function to generate edge weights. Defaults to None.
 
+        Warnings:
+            RuntimeWarning: If extra arguments are provided.
+
         Returns:
             Graph: A wheel graph with `size` vertices.
         """
+        if args or kwargs:
+            warnings.warn("Extra arguments are ignored", RuntimeWarning, 2)
         if weight_gener is None:
             weight_gener = lambda u, v: None
         graph = Graph(size, directed)
@@ -629,11 +718,12 @@ class Graph:
     def connected(
         size: int,
         edge_count: int,
-        *,
+        *args: Any,
         directed: bool = False,
         self_loop: bool = False,
         multiedge: bool = False,
         weight_gener: Optional[Callable[[int, int], Any]] = None,
+        **kwargs: Any,
     ) -> "Graph":
         """
         Returns a connected graph with `size` vertices and `edge_count` edges.
@@ -649,9 +739,14 @@ class Graph:
         Raises:
             ValueError: If the number of edges is invalid.
 
+        Warnings:
+            RuntimeWarning: If extra arguments are provided.
+
         Returns:
             Graph: A connected graph with `size` vertices and `edge_count` edges.
         """
+        if args or kwargs:
+            warnings.warn("Extra arguments are ignored", RuntimeWarning, 2)
         if weight_gener is None:
             weight_gener = lambda u, v: None
         if edge_count < size - 1:
@@ -673,6 +768,29 @@ class Graph:
             if multiedge or graph.count_edge(u, v) == 0:
                 graph.add_edge(u, v, weight_gener(u, v))
         return graph
+
+    @staticmethod
+    def graph(_type: str, *args: Any, **kwargs: Any) -> "Graph":
+        """
+        Returns a graph of the specified type.
+
+        Args:
+            name (str): The type of graph.
+            *args: The arguments to pass to the graph constructor.
+            **kwargs: The keyword arguments to pass to the graph constructor.
+
+        Raises:
+            ValueError: If the graph type is unknown.
+
+        Warnings:
+            RuntimeWarning: If extra arguments are provided
+
+        Returns:
+            Graph: A graph of the specified type.
+        """
+        if _type not in Graph.GRAPH_TYPES:
+            raise ValueError(f"Unknown graph type: {_type}")
+        return getattr(Graph, _type)(*args, **kwargs)
 
     @staticmethod
     def _calc_max_edge(size: int, directed: bool, self_loop: bool):
