@@ -32,7 +32,9 @@ class Seq:
             return self
 
         def __next__(self) -> Number:
-            if self.__pos >= self.__stop:
+            if self.__step >= 0 and self.__pos >= self.__stop:
+                raise StopIteration
+            if self.__step < 0 and self.__pos <= self.__stop:
                 raise StopIteration
             value = self.__seq[self.__pos]
             self.__pos += self.__step
