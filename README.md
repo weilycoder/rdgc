@@ -1,5 +1,12 @@
 # RDGC Data Generator for Contests
 
+[![Release](https://img.shields.io/github/v/release/weilycoder/rdgc)](https://github.com/weilycoder/rdgc/releases/)
+[![github](https://img.shields.io/badge/github-rdgc-blue?logo=github)](https://github.com/weilycoder/rdgc)
+[![Test PyPI](https://img.shields.io/badge/Test_PyPI-rdgc-blue?logo=pypi)](https://test.pypi.org/project/rdgc/)
+[![sata-license](https://img.shields.io/badge/License-SATA-green)](https://github.com/zTrix/sata-license)
+![Stars](https://img.shields.io/github/stars/weilycoder/rdgc)
+![Forks](https://img.shields.io/github/forks/weilycoder/rdgc)
+
 由于我现在常用的数据生成器在 API 设计上令人迷惑，我决定自己编写一个生成器。
 
 ## features
