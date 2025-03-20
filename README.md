@@ -4,6 +4,7 @@
 [![github](https://img.shields.io/badge/github-rdgc-blue?logo=github)](https://github.com/weilycoder/rdgc)
 [![Test PyPI](https://img.shields.io/badge/Test_PyPI-rdgc-blue?logo=pypi)](https://test.pypi.org/project/rdgc/)
 [![sata-license](https://img.shields.io/badge/License-SATA-green)](https://github.com/zTrix/sata-license)
+[![GitHub Issues or Pull Requests](https://img.shields.io/github/issues-raw/weilycoder/rdgc)](https://github.com/weilycoder/rdgc/issues)
 ![Stars](https://img.shields.io/github/stars/weilycoder/rdgc)
 ![Forks](https://img.shields.io/github/forks/weilycoder/rdgc)
 
