@@ -185,6 +185,18 @@ class Graph:
         multiedge: bool = False,
         weight_gener: Optional[Callable[[int, int], Any]] = None,
     ) -> None:
+        """
+        Adds `edge_count` random edges to the graph.
+
+        Args:
+            edge_count (int): The number of edges to add.
+            self_loop (bool, optional): Specifies whether self-loops are allowed. Defaults to False.
+            multiedge (bool, optional): Specifies whether multiple edges are allowed. Defaults to False.
+            weight_gener (Callable[[int, int], Any], optional): A function to generate edge weights. Defaults to None.
+
+        Raises:
+            ValueError: If the number of edges is invalid.
+        """
         if weight_gener is None:
             weight_gener = lambda u, v: None
         if not multiedge:
