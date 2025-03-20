@@ -177,6 +177,32 @@ class Graph:
         self.__add_edge(u, v)
         self.__edge_cnt += 1
 
+    def add_rand_edge(
+        self,
+        edge_count: int,
+        *,
+        self_loop: bool = False,
+        multiedge: bool = False,
+        weight_gener: Optional[Callable[[int, int], Any]] = None,
+    ) -> None:
+        if weight_gener is None:
+            weight_gener = lambda u, v: None
+        if not multiedge:
+            max_edge = Graph._calc_max_edge(self.vertices, self.directed, self_loop)
+            if self.edges + edge_count > max_edge:
+                raise ValueError(
+                    f"Too many edges: {self.edges} + {edge_count} > {max_edge}"
+                )
+
+        while self.edges < edge_count:
+            u, v = (
+                random.sample(range(self.vertices), 2)
+                if not self_loop
+                else random.choices(range(self.vertices), k=2)
+            )
+            if multiedge or self.count_edge(u, v) == 0:
+                self.add_edge(u, v, weight_gener(u, v))
+
     def count_edges(self, u: int) -> int:
         """
         Returns the number of edges incident to vertex `u`.
