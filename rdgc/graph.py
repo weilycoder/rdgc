@@ -17,7 +17,7 @@ class SwitchGraph:
 
     __directed: bool
     __edges: List[Tuple[int, int]]
-    __edges_set: Set[Tuple[int, int]]
+    __edges_set: Counter[Tuple[int, int]]
 
     def __init__(
         self,
@@ -26,7 +26,7 @@ class SwitchGraph:
     ):
         self.__directed = directed
         self.__edges = []
-        self.__edges_set = set()
+        self.__edges_set = Counter()
         for u, v in edge_seq:
             self.insert(u, v)
 
@@ -45,7 +45,7 @@ class SwitchGraph:
         if not self.__directed and u > v:
             u, v = v, u
         self.__edges.append((u, v))
-        self.__edges_set.add((u, v))
+        self.__edges_set[(u, v)] += 1
 
     def remove(self, ind: Sequence[int]) -> None:
         """
@@ -58,7 +58,10 @@ class SwitchGraph:
             assert 0 <= i < len(self.__edges)
             self.__edges[i], self.__edges[-t] = self.__edges[-t], self.__edges[i]
         for _ in range(len(ind)):
-            self.__edges_set.remove(self.__edges.pop())
+            u, v = self.__edges.pop()
+            self.__edges_set[(u, v)] -= 1
+            if self.__edges_set[(u, v)] == 0:
+                self.__edges_set.pop((u, v))
 
     def switch(self, *, self_loop: bool = False, multiedge: bool = False) -> bool:
         """
