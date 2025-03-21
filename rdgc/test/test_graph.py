@@ -203,3 +203,26 @@ class TestGraph(unittest.TestCase):
             for u in range(1, N):
                 self.assertEqual(graph.count_edge(0, u), 1)
                 self.assertEqual(graph.count_edge(u, u % (N - 1) + 1), 1)
+
+    def test_degree_unmutiedge(self):
+        N = 20
+        for _ in range(40):
+            graph = Graph.from_degree_sequence([2] * N, multiedge=False)
+            self.assertEqual(graph.vertices, N)
+            self.assertEqual(graph.edges, N)
+            for u in range(N):
+                self.assertEqual(graph.count_edges(u), 2)
+            self.assertEqual(len(set(graph.get_edges())), N)
+
+    def test_degree_mutiedge(self):
+        N = 20
+        muti = False
+        for _ in range(40):
+            graph = Graph.from_degree_sequence([2] * N, multiedge=True)
+            self.assertEqual(graph.vertices, N)
+            self.assertEqual(graph.edges, N)
+            for u in range(N):
+                self.assertEqual(graph.count_edges(u), 2)
+            if len(set(graph.get_edges())) < N:
+                muti = True
+        self.assertTrue(muti)
