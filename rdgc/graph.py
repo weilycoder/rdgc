@@ -228,6 +228,7 @@ class Graph:
         "cycle",
         "wheel",
         "connected",
+        "from_degree_sequence",
     )
 
     __directed: bool
