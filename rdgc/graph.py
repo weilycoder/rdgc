@@ -102,10 +102,16 @@ class SwitchGraph:
         """
         Returns a graph with the given directed degree sequence.
 
+        Note the time complexity of this function is O(n*m*log(n)),
+        where n is the number of vertices and m is the number of edges.
+
         Args:
             degree_sequence (Sequence[Tuple[int, int]]): The directed degree sequence.
             self_loop (bool, optional): Specifies whether self-loops are allowed. Defaults to False.
             multiedge (bool, optional): Specifies whether multiple edges are allowed. Defaults to False.
+
+        Raises:
+            ValueError: If the degree sequence is invalid.
 
         Returns:
             SwitchGraph: A graph with the given directed degree sequence.
@@ -159,10 +165,16 @@ class SwitchGraph:
         """
         Returns a graph with the given undirected degree sequence.
 
+        Note the time complexity of this function is O(n*m*log(n)),
+        where n is the number of vertices and m is the number of edges.
+
         Args:
             degree_sequence (Sequence[int]): The undirected degree sequence.
             self_loop (bool, optional): Specifies whether self-loops are allowed. Defaults to False.
             multiedge (bool, optional): Specifies whether multiple edges are allowed. Defaults to False.
+
+        Raises:
+            ValueError: If the degree sequence is invalid.
 
         Returns:
             SwitchGraph: A graph with the given undirected degree sequence.
@@ -204,6 +216,52 @@ class SwitchGraph:
             raise ValueError("Degree sequence is not graphical") from err
 
         return SwitchGraph(False, edges)
+
+    @staticmethod
+    def k_regular(
+        size: int,
+        k: int,
+        *,
+        self_loop: bool = False,
+        multiedge: bool = False,
+    ) -> "SwitchGraph":
+        """
+        Returns a k-regular graph with `size` vertices and degree `k`.
+
+        Args:
+            size (int): The number of vertices.
+            k (int): The degree of each vertex.
+            self_loop (bool, optional): Specifies whether self-loops are allowed. Defaults to False.
+            multiedge (bool, optional): Specifies whether multiple edges are allowed. Defaults to False.
+
+        Raises:
+            ValueError: If the degree is invalid.
+
+        Returns:
+            SwitchGraph: A k-regular graph with `size` vertices and degree `k`.
+        """
+        if k < 0:
+            raise ValueError("Degree must be non-negative")
+        if size * k % 2 != 0:
+            raise ValueError("Degree sequence is not graphical")
+        if not multiedge:
+            max_deg = size if self_loop else size - 1
+            if k > max_deg:
+                raise ValueError(f"Degree is too large: {k} > {max_deg}")
+        if size == 0 or k == 0:
+            return SwitchGraph()
+        sg = SwitchGraph()
+        if k % 2 == 1:
+            # size % 2 == 0
+            half = size // 2
+            for i in range(half):
+                sg.insert(i, (i + half) % size)
+        k //= 2
+        start = 0 if self_loop else 1
+        for i in range(size):
+            for j in range(start, start + k):
+                sg.insert(i, (i + j) % size)
+        return sg
 
     def edge_count(self) -> int:
         return len(self.__edges)
@@ -702,6 +760,9 @@ class Graph:
         """
         Returns a graph with the given degree sequence.
 
+        Note the time complexity of this function is O(n*m*log(n)),
+        where n is the number of vertices and m is the number of edges.
+
         Args:
             degree_sequence (Union[Sequence[int], Sequence[Tuple[int, int]]]): The degree sequence.
             iter_times (int, optional): The number of iterations. Defaults to None.
@@ -755,6 +816,41 @@ class Graph:
         for _ in range(iter_times):
             sg.switch(self_loop=self_loop, multiedge=multiedge)
         graph = Graph(size, directed)
+        for u, v in sg:
+            graph.add_edge(u, v, weight_gener(u, v))
+        return graph
+
+    @staticmethod
+    def k_regular(
+        size: int,
+        k: int,
+        iter_times: Optional[int] = None,
+        *args: Any,
+        self_loop: bool = False,
+        multiedge: bool = False,
+        weight_gener: Optional[Callable[[int, int], Any]] = None,
+        iter_limit: int = int(1e6),
+        **kwargs: Any,
+    ) -> "Graph":
+        if args or kwargs:
+            warnings.warn("Extra arguments are ignored", RuntimeWarning, 2)
+        if weight_gener is None:
+            weight_gener = lambda u, v: None
+
+        sg = SwitchGraph.k_regular(size, k, self_loop=self_loop, multiedge=multiedge)
+        edge_count = sg.edge_count()
+        if iter_times is None:
+            iter_times = int(
+                Graph._estimate_upperbound(
+                    size, edge_count, False, self_loop, multiedge
+                )
+                / math.log(2)
+            )
+        iter_times = min(iter_times + 1, iter_limit)
+
+        for _ in range(iter_times):
+            sg.switch(self_loop=self_loop, multiedge=multiedge)
+        graph = Graph(size, False)
         for u, v in sg:
             graph.add_edge(u, v, weight_gener(u, v))
         return graph
