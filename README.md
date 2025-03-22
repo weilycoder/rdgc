@@ -2,7 +2,7 @@
 
 [![Release](https://img.shields.io/github/v/release/weilycoder/rdgc)](https://github.com/weilycoder/rdgc/releases/)
 [![github](https://img.shields.io/badge/github-rdgc-blue?logo=github)](https://github.com/weilycoder/rdgc)
-[![Test PyPI](https://img.shields.io/badge/Test_PyPI-rdgc-blue?logo=pypi)](https://test.pypi.org/project/rdgc/)
+[![PyPI](https://img.shields.io/badge/PyPI-rdgc-blue?logo=pypi)](https://pypi.org/project/rdgc/)
 [![sata-license](https://img.shields.io/badge/License-SATA-green)](https://github.com/zTrix/sata-license)
 [![GitHub Issues or Pull Requests](https://img.shields.io/github/issues-raw/weilycoder/rdgc)](https://github.com/weilycoder/rdgc/issues)
 ![Stars](https://img.shields.io/github/stars/weilycoder/rdgc)
@@ -35,6 +35,24 @@
 + [x] 杂项
   + [x] 从命令行参数获取随机种子
   + [x] 批量将 CRLF 格式转换为 LF 格式
+
+## PyPI
+
+项目上传了 [PyPI](https://pypi.org/project/rdgc/)，因此你可以使用：
+
+```bash
+pip install rdgc
+```
+
+来下载最新版。
+
+项目也将同时上传到 [Test PyPI](https://test.pypi.org/project/rdgc/)，因此也可以：
+
+```bash
+pip install -i https://test.pypi.org/simple/ rdgc
+```
+
+当然，后者不是推荐行为。
 
 ## Semantic Versioning
 
