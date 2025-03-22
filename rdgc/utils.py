@@ -1,9 +1,17 @@
+import sys
+import random
+
 from typing import *  # type: ignore
 
-__all__ = ["dsu"]
+__all__ = ["set_randseed_from_shell"]
 
 
 T = TypeVar("T")
+
+
+def set_randseed_from_shell() -> Tuple[Union[None, int, Tuple[int, ...]]]:
+    random.seed(" ".join(sys.argv[1:]), version=2)
+    return random.getstate()
 
 
 def filter_none(iterable: Iterable[Optional[T]]) -> Iterable[T]:
