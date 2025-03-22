@@ -11,15 +11,38 @@ T = TypeVar("T")
 
 
 def set_randseed_from_shell() -> Tuple[Union[None, int, Tuple[int, ...]]]:
+    """
+    Set the random seed from the command line arguments.
+
+    The random seed is set by hashing the command line arguments and using the hash as the seed.
+
+    Returns:
+        The random state.
+    """
     random.seed(" ".join(sys.argv[1:]), version=2)
     return random.getstate()
 
 
 def dos2unix(s: str) -> str:
+    """
+    Convert DOS line endings to Unix line endings.
+
+    Args:
+        s(str): The string to convert.
+
+    Returns:
+        The string with DOS line endings converted to Unix line endings.
+    """
     return s.replace("\r\n", "\n")
 
 
 def dos2unix_file(file: str) -> None:
+    """
+    Convert DOS line endings to Unix line endings in a file.
+
+    Args:
+        file(str): The file to convert.
+    """
     data: List[str] = []
 
     with open(file, "r", encoding="ascii") as f:
@@ -41,6 +64,15 @@ def dos2unix_dir(
     suffixs: List[str] = ["in", "out"],
     echo: bool = False,
 ) -> None:
+    """
+    Convert DOS line endings to Unix line endings in a directory.
+
+    Args:
+        directory(str): The directory to convert (default: ".").
+        recursive(bool): Whether to convert recursively (default: False).
+        suffixs(List[str]): The suffixes of the files to convert (default: ["in", "out"]).
+        echo(bool): Whether to print the files that are converted (default: False).
+    """
     for root, _, files in os.walk(directory):
         for file in files:
             if any(file.endswith(suffix) for suffix in suffixs):
