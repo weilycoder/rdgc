@@ -345,10 +345,12 @@ class Graph:
     )
 
     __directed: bool
-    __edge_cnt: int
-    __ver_rnk: List[Any]
-    __edges: List[List[Any]]
-    __edge_set: Dict[Tuple[int, int], int]
+    __total_edge_count: int
+    __vertex_ranks: List[Any]
+    __adjacency_list: List[List[Any]]
+    __indeg_counter: List[int]
+    __outdeg_counter: List[int]
+    __edge_counter: Dict[Tuple[int, int], int]
 
     def __init__(self, vertices: int, directed: bool = False, rnk: Iterable[Any] = []):
         """
@@ -371,21 +373,23 @@ class Graph:
         if vertices < 0:
             raise ValueError("Number of vertices must be non-negative")
         self.__directed = directed
-        self.__edge_cnt = 0
-        self.__ver_rnk = [None for _ in range(vertices)]
-        self.__edges = [[] for _ in range(vertices)]
-        self.__edge_set = defaultdict(int)
+        self.__total_edge_count = 0
+        self.__vertex_ranks = [None for _ in range(vertices)]
+        self.__adjacency_list = [[] for _ in range(vertices)]
+        self.__indeg_counter = [0] * vertices if directed else []
+        self.__outdeg_counter = [0] * vertices
+        self.__edge_counter = defaultdict(int)
         self.set_ranks(rnk)
 
     @property
     def edges(self) -> int:
         """Returns the total number of edges in the graph."""
-        return self.__edge_cnt
+        return self.__total_edge_count
 
     @property
     def vertices(self) -> int:
         """Returns the total number of vertices in the graph."""
-        return len(self.__edges)
+        return len(self.__adjacency_list)
 
     @property
     def directed(self) -> bool:
@@ -394,9 +398,9 @@ class Graph:
 
     def __add_edge(self, u: int, v: int) -> None:
         """Increments the edge count between vertices `u` and `v`."""
-        self.__edge_set[(u, v)] += 1
+        self.__edge_counter[(u, v)] += 1
         if not self.__directed and u != v:
-            self.__edge_set[(v, u)] += 1
+            self.__edge_counter[(v, u)] += 1
 
     def set_rank(self, u: int, rnk: Any = None):
         """
@@ -409,7 +413,7 @@ class Graph:
         Raises:
             IndexError: If the vertex is invalid.
         """
-        self.__ver_rnk[u] = rnk
+        self.__vertex_ranks[u] = rnk
 
     def get_rank(self, u: int) -> Any:
         """
@@ -424,7 +428,7 @@ class Graph:
         Raises:
             IndexError: If the vertex is invalid.
         """
-        return self.__ver_rnk[u]
+        return self.__vertex_ranks[u]
 
     def set_ranks(self, rnk: Iterable[Any], default: Any = None) -> None:
         """
@@ -449,7 +453,67 @@ class Graph:
         Returns:
             List[Any]: The ranks of all vertices.
         """
-        return tuple(self.__ver_rnk)
+        return tuple(self.__vertex_ranks)
+
+    def indegree(self, u: int) -> int:
+        """
+        Returns the indegree of vertex `u`.
+
+        If the graph is undirected, please use the `degree` method instead.
+
+        Args:
+            u (int): The vertex.
+
+        Raises:
+            IndexError: If the vertex is invalid.
+            ValueError: If the graph is undirected.
+
+        Returns:
+            int: The indegree of vertex `u`.
+        """
+        if not self.__directed:
+            raise ValueError("Cannot calculate indegree of an undirected graph")
+        return self.__indeg_counter[u]
+
+    def outdegree(self, u: int) -> int:
+        """
+        Returns the outdegree of vertex `u`.
+
+        If the graph is undirected, please use the `degree` method instead.
+
+        Args:
+            u (int): The vertex.
+
+        Raises:
+            IndexError: If the vertex is invalid.
+            ValueError: If the graph is undirected.
+
+        Returns:
+            int: The outdegree of vertex `u`.
+        """
+        if not self.__directed:
+            raise ValueError("Cannot calculate outdegree of an undirected graph")
+        return len(self.__adjacency_list[u])
+
+    def degree(self, u: int) -> int:
+        """
+        Returns the degree of vertex `u`.
+
+        If the graph is directed, please use the `indegree` and `outdegree` methods instead.
+
+        Args:
+            u (int): The vertex.
+
+        Raises:
+            IndexError: If the vertex is invalid.
+            ValueError: If the graph is directed.
+
+        Returns:
+            int: The degree of vertex `u`.
+        """
+        if self.__directed:
+            raise ValueError("Cannot calculate degree of a directed graph")
+        return self.__outdeg_counter[u]
 
     def get_edges(
         self, u: Optional[int] = None
@@ -465,11 +529,11 @@ class Graph:
         """
         if u is None:
             for u in range(self.vertices):
-                for v, weight in self.__edges[u]:
+                for v, weight in self.__adjacency_list[u]:
                     if self.directed or u <= v:
                         yield u, v, weight
         else:
-            for v, weight in self.__edges[u]:
+            for v, weight in self.__adjacency_list[u]:
                 yield u, v, weight
 
     def add_edge(self, u: int, v: int, weight: Any = None) -> None:
@@ -486,11 +550,16 @@ class Graph:
         """
         if u not in range(self.vertices) or v not in range(self.vertices):
             raise ValueError("Invalid vertex")
-        self.__edges[u].append((v, weight))
+        self.__adjacency_list[u].append((v, weight))
         if not self.__directed and u != v:
-            self.__edges[v].append((u, weight))
+            self.__adjacency_list[v].append((u, weight))
         self.__add_edge(u, v)
-        self.__edge_cnt += 1
+        self.__outdeg_counter[u] += 1
+        if not self.__directed:
+            self.__outdeg_counter[v] += 1
+        else:
+            self.__indeg_counter[v] += 1
+        self.__total_edge_count += 1
 
     def add_rand_edge(
         self,
@@ -545,7 +614,7 @@ class Graph:
         """
         if u not in range(self.vertices):
             raise ValueError("Invalid vertex")
-        return len(self.__edges[u])
+        return len(self.__adjacency_list[u])
 
     def count_edge(self, u: int, v: int) -> int:
         """
@@ -563,7 +632,7 @@ class Graph:
         """
         if u not in range(self.vertices) or v not in range(self.vertices):
             raise ValueError("Invalid vertex")
-        return 0 if (u, v) not in self.__edge_set else self.__edge_set[(u, v)]
+        return 0 if (u, v) not in self.__edge_counter else self.__edge_counter[(u, v)]
 
     def shuffle_nodes(
         self, shuffle: Optional[Callable[[int], Sequence[int]]] = None
