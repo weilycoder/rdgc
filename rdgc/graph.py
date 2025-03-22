@@ -342,6 +342,7 @@ class Graph:
         "wheel",
         "connected",
         "from_degree_sequence",
+        "k_regular",
     )
 
     __directed: bool
