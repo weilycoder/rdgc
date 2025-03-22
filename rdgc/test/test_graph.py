@@ -225,4 +225,10 @@ class TestGraph(unittest.TestCase):
                 self.assertEqual(graph.count_edges(u), 2)
             if len(set(graph.get_edges())) < N:
                 muti = True
+        for _ in range(40):
+            graph = Graph.from_degree_sequence([2] * N, self_loop=True)
+            self.assertEqual(graph.vertices, N)
+            self.assertEqual(graph.edges, N)
+            if len(set(graph.get_edges())) < N:
+                muti = True
         self.assertTrue(muti)

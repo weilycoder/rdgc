@@ -63,20 +63,70 @@ class SwitchGraph:
             if self.__edges_set[(u, v)] == 0:
                 self.__edges_set.pop((u, v))
 
-    def switch(self, *, self_loop: bool = False, multiedge: bool = False) -> bool:
+    def _switch3(
+        self,
+        first: int,
+        second: int,
+        *,
+        self_loop: bool = False,
+        multiedge: bool = False,
+    ) -> bool:
         """
-        Switches two random edges in the graph.
+        Switches three random edges in the graph.
 
         Returns:
             bool: True if the edges are switched, otherwise False.
         """
+        if len(self.__edges) < 3:
+            return False
+        u0, u1 = self.__edges[first]
+        v0, v1 = self.__edges[second]
+        assert u0 == u1 and v0 == v1
+
+        third = random.choice(range(len(self.__edges)))
+        while third == first or third == second:
+            third = random.choice(range(len(self.__edges)))
+        x, y = self.__edges[third]
+
+        # u -> v v -> y x -> u
+        if not self_loop:
+            if u0 == v0 or v0 == y or x == u0:
+                return False
+        if {(u0, u1), (v0, v1), (x, y)} == {(u0, v0), (v0, y), (x, u0)}:
+            return False
+        if not multiedge and len({(u0, v0), (v0, y), (x, u0)}) < 3:
+            return False
+
+        self.remove([first, second, third])
+
+        if self.count(u0, v0) or self.count(v0, y) or self.count(x, u0):
+            self.insert(u0, u1)
+            self.insert(v0, v1)
+            self.insert(x, y)
+            return False
+
+        self.insert(u0, v0)
+        self.insert(v0, y)
+        self.insert(x, u0)
+        return True
+
+    def switch(self, *, self_loop: bool = False, multiedge: bool = False) -> bool:
+        """
+        Switches two or three random edges in the graph.
+
+        Returns:
+            bool: True if the edges are switched, otherwise False.
+        """
+        if len(self.__edges) < 2:
+            return False
+
         first, second = random.choices(range(len(self.__edges)), k=2)
 
         x1, y1 = self.__edges[first]
         x2, y2 = self.__edges[second]
 
         if self_loop:
-            if x1 == y1 or y1 == y2:
+            if x1 == x2 or y1 == y2:
                 return False
         else:
             if {x1, y1} & {x2, y2} != set():
@@ -84,6 +134,11 @@ class SwitchGraph:
 
         if not multiedge and (self.count(x1, y2) or self.count(x2, y1)):
             return False
+
+        if not multiedge and (x1 == y1 and x2 == y2):
+            return self._switch3(
+                first, second, self_loop=self_loop, multiedge=multiedge
+            )
 
         self.remove([first, second])
 
