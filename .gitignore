@@ -7,5 +7,6 @@ dist
 *.out
 
 *.pyc
+*.exe
 
 local_test.*
