@@ -4,9 +4,10 @@ import warnings
 from typing import *  # type: ignore
 
 
-__all__ = ["Seq"]
+__all__ = ["Seq", "SeqIter", "Number"]
 
-Number = Union[int, float, complex]
+
+Number = Any
 
 
 class SeqIter:
@@ -142,7 +143,7 @@ class Seq:
                         raise RecursionError("Iteration limit exceeded")
             except StopIteration as stop:
                 d, _ = stack.pop()
-                ret = self.__values[d] = cast(Number, stop.value)
+                ret = self.__values[d] = stop.value
                 if not stack:
                     return stop.value
 
