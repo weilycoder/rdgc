@@ -70,4 +70,4 @@ pip install -i https://test.pypi.org/simple/ rdgc
 
 ## License
 
-项目没有额外声明的部分使用 [SATA](https://github.com/zTrix/sata-license) 许可证，如果你认为我的项目有用，请考虑为我点赞。
+项目没有额外声明的部分使用 [SATA](https://github.com/zTrix/sata-license) 许可证，如果你认为我的项目有用，请考虑在 [Github](https://github.com/weilycoder/rdgc) 为我点赞。
