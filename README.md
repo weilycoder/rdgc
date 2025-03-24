@@ -1,10 +1,13 @@
 # RDGC Data Generator for Contests
 
 [![Release](https://img.shields.io/github/v/release/weilycoder/rdgc)](https://github.com/weilycoder/rdgc/releases/)
+![Last Commit](https://img.shields.io/github/last-commit/weilycoder/rdgc)
 [![github](https://img.shields.io/badge/github-rdgc-blue?logo=github)](https://github.com/weilycoder/rdgc)
 [![PyPI](https://img.shields.io/badge/PyPI-rdgc-blue?logo=pypi)](https://pypi.org/project/rdgc/)
 [![sata-license](https://img.shields.io/badge/License-SATA-green)](https://github.com/zTrix/sata-license)
+
 [![GitHub Issues or Pull Requests](https://img.shields.io/github/issues-raw/weilycoder/rdgc)](https://github.com/weilycoder/rdgc/issues)
+![GitHub Downloads](https://img.shields.io/github/downloads/weilycoder/rdgc/total)
 ![Stars](https://img.shields.io/github/stars/weilycoder/rdgc)
 ![Forks](https://img.shields.io/github/forks/weilycoder/rdgc)
 
