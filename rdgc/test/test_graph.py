@@ -1,7 +1,9 @@
+# pylint: disable=C0103, C0114, C0115, C0116, W1404, W0212, R0904
+
 import random
 import unittest
 from rdgc import Graph
-from rdgc.utils import dsu
+from rdgc.utils import Dsu
 
 
 __all__ = ["TestGraph"]
@@ -10,7 +12,7 @@ __all__ = ["TestGraph"]
 class TestGraph(unittest.TestCase):
     def assert_connected(self, graph: Graph):
         n = graph.vertices
-        dsu_instance = dsu(n)
+        dsu_instance = Dsu(n)
         for u, v, _ in graph.get_edges():
             dsu_instance.union(u, v)
         self.assertEqual(len(set(dsu_instance.find(i) for i in range(n))), 1)

@@ -1,7 +1,11 @@
+"""
+This module provides two classes, `Seq` and `SeqIter`, for working with mathematical sequences.
+"""
+
 import sys
 import warnings
 
-from typing import *  # type: ignore
+from typing import Any, Callable, Dict, Generator, Iterable, Optional, Union, overload
 
 
 __all__ = ["Seq", "SeqIter", "Number"]
@@ -11,6 +15,21 @@ Number = Any
 
 
 class SeqIter:
+    """
+    An iterator class for iterating over a sequence (`Seq`) with customizable
+    start, stop, and step parameters.
+    Attributes:
+        _seq (Seq): The sequence to iterate over.
+        start (Optional[int]): The starting index of the iteration. Defaults to 0.
+        stop (Optional[int]): The stopping index of the iteration. Defaults to infinity.
+        step (Optional[int]): The step size for the iteration. Defaults to 1.
+    Methods:
+        __iter__(): Returns the iterator object itself.
+        __next__(): Returns the next value in the sequence based on the current
+                    position and step size. Raises StopIteration when the end
+                    of the iteration is reached.
+    """
+
     def __init__(
         self,
         _seq: "Seq",
@@ -38,6 +57,11 @@ class SeqIter:
 
 
 class Seq:
+    """
+    Seq is a class that represents a mathematical sequence, allowing for the calculation of sequence values
+    based on a provided formula or a generator function. The generator function is used to avoid recursion.
+    """
+
     __type: bool
     __iter_limit: Optional[int]
     __formula: Callable[[int, Callable[[int], Number]], Number]
@@ -48,7 +72,7 @@ class Seq:
         self,
         formula: Optional[Callable[[int, Callable[[int], Number]], Number]] = None,
         *values0: Number,
-        values1: Dict[int, Number] = {},
+        values1: Optional[Dict[int, Number]] = None,
         yield_formula: Optional[Callable[[int], Generator[int, Number, Number]]] = None,
         iteration_limit: Optional[int] = int(1e6),
     ):
@@ -106,7 +130,7 @@ class Seq:
             raise ValueError("Only one of formula and yield_formula can be provided")
         self.__iter_limit = iteration_limit
 
-        self.__values = values1.copy()
+        self.__values = {} if values1 is None else values1.copy()
         for i, v in enumerate(values0):
             if i in self.__values:
                 warnings.warn(
@@ -119,10 +143,12 @@ class Seq:
 
     @property
     def has_yield_formula(self) -> bool:
+        """Whether the sequence has a yield formula."""
         return self.__type
 
     @property
     def iter_limit(self) -> Optional[int]:
+        """The iteration limit of the sequence."""
         return self.__iter_limit
 
     def __calc_with_yield(self, i: int, gen: Generator[int, Number, Number]) -> Number:
@@ -182,8 +208,7 @@ class Seq:
         """
         if isinstance(ind, int):
             return self.__call__(ind)
-        else:
-            return SeqIter(self, ind.start, ind.stop, ind.step)
+        return SeqIter(self, ind.start, ind.stop, ind.step)
 
     def __setitem__(self, i: int, value: Number):
         """
@@ -199,8 +224,30 @@ class Seq:
         return iter(self.__values.items())
 
     def setiterationlimit(self, limit: Optional[int]):
+        """
+        Set the iteration limit of the sequence.
+
+        Args:
+            limit (Optional[int]): The new iteration limit. None for no limit.
+        """
         self.__iter_limit = limit
 
     @staticmethod
+    def getrecursionlimit() -> int:
+        """
+        Get the recursion limit of the sequence.
+
+        Returns:
+            The recursion limit of the sequence.
+        """
+        return sys.getrecursionlimit()
+
+    @staticmethod
     def setrecursionlimit(limit: int):
+        """
+        Set the recursion limit of the sequence.
+
+        Args:
+            limit (int): The new recursion limit.
+        """
         sys.setrecursionlimit(limit)

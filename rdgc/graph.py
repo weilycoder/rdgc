@@ -1,12 +1,30 @@
+"""
+This module provides classes and methods for creating and manipulating graphs.
+"""
+
 import itertools
 import math
 import random
 import warnings
 from collections import defaultdict
 
-from .utils import dsu, filter_none
+from typing import (
+    Any,
+    Callable,
+    Counter,
+    Dict,
+    Generator,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+    cast,
+)
 
-from typing import *  # type: ignore
+from .utils import Dsu, filter_none
 
 
 __all__ = ["Graph"]
@@ -22,7 +40,7 @@ class SwitchGraph:
     def __init__(
         self,
         directed: bool = False,
-        edge_seq: Sequence[Tuple[int, int]] = [],
+        edge_seq: Sequence[Tuple[int, int]] = (),
     ):
         self.__directed = directed
         self.__edges = []
@@ -84,7 +102,7 @@ class SwitchGraph:
         assert u0 == u1 and v0 == v1
 
         third = random.choice(range(len(self.__edges)))
-        while third == first or third == second:
+        while third in (first, second):
             third = random.choice(range(len(self.__edges)))
         x, y = self.__edges[third]
 
@@ -319,6 +337,7 @@ class SwitchGraph:
         return sg
 
     def edge_count(self) -> int:
+        """Returns the total number of edges in the graph."""
         return len(self.__edges)
 
     def __iter__(self) -> Iterator[Tuple[int, int]]:
@@ -341,6 +360,7 @@ class Graph:
         "cycle",
         "wheel",
         "connected",
+        "strongly_connected",
         "from_degree_sequence",
         "k_regular",
     )
@@ -353,7 +373,7 @@ class Graph:
     __outdeg_counter: List[int]
     __edge_counter: Dict[Tuple[int, int], int]
 
-    def __init__(self, vertices: int, directed: bool = False, rnk: Iterable[Any] = []):
+    def __init__(self, vertices: int, directed: bool = False, rnk: Iterable[Any] = ()):
         """
         Initializes a graph object.
 
@@ -529,10 +549,10 @@ class Graph:
             Tuple[int, int, Any]: A tuple containing the vertices and weight of an edge.
         """
         if u is None:
-            for u in range(self.vertices):
-                for v, weight in self.__adjacency_list[u]:
-                    if self.directed or u <= v:
-                        yield u, v, weight
+            for uu in range(self.vertices):
+                for vv, weight in self.__adjacency_list[uu]:
+                    if self.directed or uu <= vv:
+                        yield uu, vv, weight
         else:
             for v, weight in self.__adjacency_list[u]:
                 yield u, v, weight
@@ -957,6 +977,27 @@ class Graph:
         iter_limit: int = int(1e6),
         **kwargs: Any,
     ) -> "Graph":
+        """
+        Returns a k-regular graph with `size` vertices and degree `k`.
+
+        Args:
+            size (int): The number of vertices.
+            k (int): The degree of each vertex.
+            iter_times (int, optional): The number of iterations. Defaults to None.
+            self_loop (bool, optional): Specifies whether self-loops are allowed. Defaults to False.
+            multiedge (bool, optional): Specifies whether multiple edges are allowed. Defaults to False.
+            weight_gener (Callable[[int, int], Any], optional): A function to generate edge weights. Defaults to None.
+            iter_limit (int, optional): The maximum number of iterations. Defaults to 1e6.
+
+        Raises:
+            ValueError: If the degree is invalid.
+
+        Warnings:
+            RuntimeWarning: If extra arguments are provided.
+
+        Returns:
+            Graph: A k-regular graph with `size` vertices and degree `k`.
+        """
         if args or kwargs:
             warnings.warn("Extra arguments are ignored", RuntimeWarning, 2)
         if weight_gener is None:
@@ -1184,7 +1225,7 @@ class Graph:
             weight_gener = lambda u, v: None
 
         tree = Graph(size)
-        dsu_instance = dsu(size)
+        dsu_instance = Dsu(size)
         while tree.edges < size - 1:
             u, v = random.sample(range(size), 2)
             if dsu_instance.union(u, v):
@@ -1323,6 +1364,60 @@ class Graph:
         return graph
 
     @staticmethod
+    def strongly_connected(
+        size: int,
+        edge_count: int,
+        *args: Any,
+        self_loop: bool = False,
+        multiedge: bool = False,
+        weight_gener: Optional[Callable[[int, int], Any]] = None,
+        **kwargs: Any,
+    ) -> "Graph":
+        """
+        Returns a strongly connected graph with `size` vertices and `edge_count` edges.
+
+        Args:
+            size (int): The number of vertices.
+            edge_count (int): The number of edges.
+            self_loop (bool, optional): Specifies whether self-loops are allowed. Defaults to False.
+            multiedge (bool, optional): Specifies whether multiple edges are allowed. Defaults to False.
+            weight_gener (Callable[[int, int], Any], optional): A function to generate edge weights. Defaults to None.
+
+        Raises:
+            ValueError: If the number of edges is invalid.
+
+        Warnings:
+            RuntimeWarning: If extra arguments are provided.
+
+        Returns:
+            Graph: A strongly connected graph with `size` vertices and `edge_count` edges.
+        """
+        if args or kwargs:
+            warnings.warn("Extra arguments are ignored", RuntimeWarning, 2)
+        if weight_gener is None:
+            weight_gener = lambda u, v: None
+
+        if edge_count < size:
+            raise ValueError(f"Too few edges: {edge_count} < {size}")
+        if not multiedge:
+            max_edge = Graph._calc_max_edge(size, True, self_loop)
+            if edge_count > max_edge:
+                raise ValueError(f"Too many edges: {edge_count} > {max_edge}")
+
+        graph = Graph.cycle(size, directed=True, weight_gener=weight_gener)
+
+        while graph.edges < edge_count:
+            u, v = (
+                random.sample(range(size), 2)
+                if not self_loop
+                else random.choices(range(size), k=2)
+            )
+            if multiedge or graph.count_edge(u, v) == 0:
+                graph.add_edge(u, v, weight_gener(u, v))
+
+        return graph
+
+    @staticmethod
     def graph(_type: str, *args: Any, **kwargs: Any) -> "Graph":
         """
         Returns a graph of the specified type.
@@ -1372,5 +1467,4 @@ class Graph:
         tot_edge = Graph._calc_max_edge(size, directed, self_loop)
         if multiedge:
             return Graph._estimate_comb(edge_count + tot_edge - 1, edge_count)
-        else:
-            return Graph._estimate_comb(tot_edge, edge_count)
+        return Graph._estimate_comb(tot_edge, edge_count)

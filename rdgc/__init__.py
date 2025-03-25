@@ -1,3 +1,5 @@
+"""RDGC Data Generator for Contests"""
+
 from .nt import *
 from .seq import *
 from .graph import *

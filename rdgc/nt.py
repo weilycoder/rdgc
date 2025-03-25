@@ -1,12 +1,16 @@
+"""
+This module provides some commonly used number theory methods.
+"""
+
 import random
 
-from typing import *  # type: ignore
+from typing import List, Tuple
 
 
 __all__ = [
     "prime_sieve",
     "prime_sieve2",
-    "isPrime",
+    "is_prime",
     "miller_rabin_test",
     "miller_rabin",
     "fast_isPrime",
@@ -70,7 +74,7 @@ def prime_sieve2(n: int) -> List[int]:
     return prime
 
 
-def isPrime(n: int) -> bool:
+def is_prime(n: int) -> bool:
     """
     Check if n is a prime number.
 
@@ -82,7 +86,7 @@ def isPrime(n: int) -> bool:
     Returns:
         bool: True if n is a prime number, False otherwise.
     """
-    if not isinstance(n, int):  # type: ignore
+    if not isinstance(n, int):
         raise ValueError("n must be an integer")
     if n < 2:
         return False
@@ -110,7 +114,7 @@ def miller_rabin_test(n: int, r: int, d: int, a: int) -> bool:
               indicating that `n` is a probable prime. False otherwise.
     """
     x = pow(a, d, n)
-    if x == 0 or x == 1 or x == n - 1:
+    if x in (0, 1, n - 1):
         return True
     for _ in range(r - 1):
         x = x * x % n
@@ -119,7 +123,7 @@ def miller_rabin_test(n: int, r: int, d: int, a: int) -> bool:
     return False
 
 
-def miller_rabin(n: int, k: int = 16, *, bases: List[int] = []) -> bool:
+def miller_rabin(n: int, k: int = 16, *, bases: Tuple[int, ...] = ()) -> bool:
     """
     Check if a number is a prime using the Miller-Rabin primality test.
 
@@ -142,7 +146,7 @@ def miller_rabin(n: int, k: int = 16, *, bases: List[int] = []) -> bool:
     Raises:
         ValueError: If `n` is not an integer.
     """
-    if not isinstance(n, int):  # type: ignore
+    if not isinstance(n, int):
         raise ValueError("n must be an integer")
     if n < 2:
         return False

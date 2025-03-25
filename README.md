@@ -74,3 +74,22 @@ pip install -i https://test.pypi.org/simple/ rdgc
 ## License
 
 项目没有额外声明的部分使用 [SATA](https://github.com/zTrix/sata-license) 许可证，如果你认为我的项目有用，请考虑在 [Github](https://github.com/weilycoder/rdgc) 为我点赞。
+
+## Pylint
+
+项目使用 Pylint 检查 Python 语法。
+
+全局禁用的检查包括：
+
++ line-too-long (C0301)
++ too-many-lines (C0302)
++ unnecessary-lambda-assignment (C3001)
++ too-many-public-methods (R0904)
++ too-many-return-statements (R0911)
++ too-many-arguments (R0913)
++ too-many-locals (R0914)
++ keyword-arg-before-vararg (W1113)
+
+在测试脚本中禁用了所有出现的警告，包括但不限于注释缺失。
+
+在项目主文件中禁用的警告使用具体名称而非代码。

@@ -1,8 +1,10 @@
+"""Utility functions."""
+
 import os
 import sys
 import random
 
-from typing import *  # type: ignore
+from typing import *  # pylint: disable=W0401,W0614
 
 __all__ = ["set_randseed_from_shell", "dos2unix", "dos2unix_file", "dos2unix_dir"]
 
@@ -61,7 +63,7 @@ def dos2unix_dir(
     directory: str = ".",
     recursive: bool = False,
     *,
-    suffixs: List[str] = ["in", "out"],
+    suffixs: Tuple[str, ...] = ("in", "out"),
     echo: bool = False,
 ) -> None:
     """
@@ -70,7 +72,7 @@ def dos2unix_dir(
     Args:
         directory(str): The directory to convert (default: ".").
         recursive(bool): Whether to convert recursively (default: False).
-        suffixs(List[str]): The suffixes of the files to convert (default: ["in", "out"]).
+        suffixs(Tuple[str]): The suffixes of the files to convert (default: ("in", "out")).
         echo(bool): Whether to print the files that are converted (default: False).
     """
     for root, _, files in os.walk(directory):
@@ -84,20 +86,25 @@ def dos2unix_dir(
 
 
 def filter_none(iterable: Iterable[Optional[T]]) -> Iterable[T]:
+    """Filter out the None values in an iterable."""
     return (x for x in iterable if x is not None)
 
 
-class dsu:
+class Dsu:
+    """Disjoint Set Union data structure."""
+
     def __init__(self, n: int):
         self.par = list(range(n))
         self.rank = [0] * n
 
     def find(self, x: int) -> int:
+        """Finds the representative (root) of the set containing the element `x`."""
         if self.par[x] != x:
             self.par[x] = self.find(self.par[x])
         return self.par[x]
 
     def union(self, x: int, y: int) -> bool:
+        """Unions the sets containing the elements `x` and `y`."""
         x, y = self.find(x), self.find(y)
         if x == y:
             return False
