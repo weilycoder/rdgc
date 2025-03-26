@@ -1,6 +1,6 @@
 """RDGC Data Generator for Contests"""
 
-from .nt import *
-from .seq import *
-from .graph import *
-from .utils import *
+from rdgc.nt import *
+from rdgc.seq import *
+from rdgc.graph import *
+from rdgc.utils import *

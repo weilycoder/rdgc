@@ -24,7 +24,7 @@ from typing import (
     cast,
 )
 
-from .utils import Dsu, filter_none
+from rdgc.utils import Dsu, filter_none
 
 
 __all__ = ["Graph"]
