@@ -1,8 +1,9 @@
 # pylint: disable=all
 
-import random
+import random as rd
 import unittest
 from rdgc import Graph
+from rdgc.graph import *
 from rdgc.utils import Dsu
 
 
@@ -56,23 +57,23 @@ class TestGraph(unittest.TestCase):
         self.assertEqual(graph.vertices, 3)
 
     def test_null(self):
-        graph = Graph.null(10)
+        graph = null(10)
         self.assertEqual(graph.output_edges(), "")
         self.assertEqual(graph.edges, 0)
         self.assertEqual(graph.vertices, 10)
 
     def test_complete(self):
-        graph0 = Graph.complete(4)
+        graph0 = complete(4)
         self.assertEqual(
             graph0.output_edges(),
             "0 1\n" "0 2\n" "0 3\n" "1 2\n" "1 3\n" "2 3",
         )
-        graph1 = Graph.complete(3, directed=True)
+        graph1 = complete(3, directed=True)
         self.assertEqual(
             graph1.output_edges(),
             "0 1\n" "0 2\n" "1 0\n" "1 2\n" "2 0\n" "2 1",
         )
-        graph2 = Graph.complete(3, directed=True, self_loop=True)
+        graph2 = complete(3, directed=True, self_loop=True)
         self.assertEqual(
             graph2.output_edges(),
             "0 0\n" "0 1\n" "0 2\n" "1 0\n" "1 1\n" "1 2\n" "2 0\n" "2 1\n" "2 2",
@@ -80,11 +81,11 @@ class TestGraph(unittest.TestCase):
 
     def test_tournament(self):
         for _ in range(10):
-            N = random.randint(10, 50)
-            graph = Graph.tournament(N)
+            N = rd.randint(10, 50)
+            graph = tournament(N)
             self.assertNotEqual(
                 graph.output_edges(),
-                Graph.complete(N, directed=True).output_edges(),
+                complete(N, directed=True).output_edges(),
             )
             self.assertEqual(
                 [[u, v] for u in range(N) for v in range(u + 1, N)],
@@ -94,16 +95,16 @@ class TestGraph(unittest.TestCase):
     def test_tree(self):
         N = 100
         for _ in range(10):
-            r1, r2 = sorted((random.uniform(0.0, 1.0), random.uniform(0.0, 1.0)))
+            r1, r2 = sorted((rd.uniform(0.0, 1.0), rd.uniform(0.0, 1.0)))
             r2 -= r1
-            tree = Graph.tree(N, r1, r2)
-            self.assertEqual(tree.vertices, N)
-            self.assertEqual(tree.edges, N - 1)
-            self.assert_connected(tree)
+            tg = tree(N, r1, r2)
+            self.assertEqual(tg.vertices, N)
+            self.assertEqual(tg.edges, N - 1)
+            self.assert_connected(tg)
 
     def test_chain(self):
         N = 20
-        graph = Graph.chain(N)
+        graph = chain(N)
         self.assertEqual(graph.vertices, N)
         self.assertEqual(graph.edges, N - 1)
         for u, v, _ in graph.get_edges():
@@ -111,7 +112,7 @@ class TestGraph(unittest.TestCase):
 
     def test_star(self):
         N = 20
-        graph = Graph.star(N)
+        graph = star(N)
         self.assertEqual(graph.vertices, N)
         self.assertEqual(graph.edges, N - 1)
         for u, v, _ in graph.get_edges():
@@ -121,7 +122,7 @@ class TestGraph(unittest.TestCase):
 
     def test_union_tree(self):
         N = 20
-        graph = Graph.spanning_tree(N)
+        graph = spanning_tree(N)
         self.assertEqual(graph.vertices, N)
         self.assertEqual(graph.edges, N - 1)
         self.assert_connected(graph)
@@ -129,7 +130,7 @@ class TestGraph(unittest.TestCase):
     def test_self_loop(self):
         N = 20
         for _ in range(4):
-            graph = Graph.random(N, N * N // 4, self_loop=True)
+            graph = random(N, N * N // 4, self_loop=True)
             flag = False
             for u in range(N):
                 if graph.count_edge(u, u) > 0:
@@ -142,7 +143,7 @@ class TestGraph(unittest.TestCase):
     def test_mutiedges(self):
         N = 20
         for _ in range(4):
-            graph = Graph.random(N, N * N, multiedge=True)
+            graph = random(N, N * N, multiedge=True)
             self.assertEqual(graph.vertices, N)
             self.assertEqual(graph.edges, N * N)
             self.assertTrue(len(set(graph.get_edges())) < graph.edges)
@@ -150,46 +151,46 @@ class TestGraph(unittest.TestCase):
     def test_random(self):
         N = 20
         # Test graph with too many edges
-        Graph.random(
+        random(
             N,
-            Graph._calc_max_edge(N, True, False),  # type: ignore
+            Graph.calc_max_edge(N, True, False),  # type: ignore
             directed=True,
             self_loop=False,
         )
         with self.assertRaises(ValueError):
-            Graph.random(N, N * N, directed=True)
+            random(N, N * N, directed=True)
 
     def test_connected(self):
         N = 20
-        graph = Graph.connected(N, N * N // 4)
+        graph = connected(N, N * N // 4)
         self.assertEqual(graph.vertices, N)
         self.assertEqual(graph.edges, N * N // 4)
         self.assert_connected(graph)
         for _ in range(10):
-            graph = Graph.connected(N, N + 1, directed=True)
+            graph = connected(N, N + 1, directed=True)
             self.assertEqual(graph.vertices, N)
             self.assertEqual(graph.edges, N + 1)
             self.assert_connected(graph)
         # Test graph with too many edges
-        graph = Graph.connected(
+        graph = connected(
             N,
-            Graph._calc_max_edge(N, False, False),  # type: ignore
+            Graph.calc_max_edge(N, False, False),  # type: ignore
             directed=True,
             self_loop=False,
         )
         for u, v, _ in graph.get_edges():
             self.assertTrue(u < v)
         with self.assertRaises(ValueError):
-            Graph.connected(N, N * N, directed=True)
+            connected(N, N * N, directed=True)
         # Test graph with too few edges
-        Graph.connected(N, N - 1)
+        connected(N, N - 1)
         with self.assertRaises(ValueError):
-            Graph.connected(N, N - 2)
+            connected(N, N - 2)
 
     def test_cycle(self):
         N = 20
         for _ in range(10):
-            graph = Graph.cycle(N)
+            graph = cycle(N)
             self.assertEqual(graph.vertices, N)
             self.assertEqual(graph.edges, N)
             for u in range(N):
@@ -198,7 +199,7 @@ class TestGraph(unittest.TestCase):
     def test_wheel(self):
         N = 20
         for _ in range(10):
-            graph = Graph.wheel(N)
+            graph = wheel(N)
             self.assertEqual(graph.vertices, N)
             self.assertEqual(graph.edges, 2 * N - 2)
             self.assertEqual(graph.count_edges(0), N - 1)
@@ -209,7 +210,7 @@ class TestGraph(unittest.TestCase):
     def test_degree_unmutiedge(self):
         N = 20
         for _ in range(40):
-            graph = Graph.from_degree_sequence([2] * N, multiedge=False)
+            graph = from_degree_sequence([2] * N, multiedge=False)
             self.assertEqual(graph.vertices, N)
             self.assertEqual(graph.edges, N)
             for u in range(N):
@@ -220,7 +221,7 @@ class TestGraph(unittest.TestCase):
         N = 20
         muti = False
         for _ in range(40):
-            graph = Graph.from_degree_sequence([2] * N, multiedge=True)
+            graph = from_degree_sequence([2] * N, multiedge=True)
             self.assertEqual(graph.vertices, N)
             self.assertEqual(graph.edges, N)
             for u in range(N):
@@ -232,13 +233,13 @@ class TestGraph(unittest.TestCase):
     def test_degree_loop(self):
         N = 20
         for _ in range(20):
-            graph = Graph.from_degree_sequence([2] * N, self_loop=True)
+            graph = from_degree_sequence([2] * N, self_loop=True)
             self.assertEqual(graph.vertices, N)
             self.assertEqual(graph.edges, N)
             for u in range(N):
                 self.assertEqual(graph.degree(u), 2)
         for _ in range(20):
-            graph = Graph.from_degree_sequence([20] * N, self_loop=True)
+            graph = from_degree_sequence([20] * N, self_loop=True)
             self.assertEqual(graph.vertices, N)
             self.assertEqual(graph.edges, N * 10)
             for u in range(N):
