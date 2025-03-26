@@ -1080,6 +1080,10 @@ class Graph:
         star: float = 0.0,
         *args: Any,
         directed: bool = False,
+        root_rank: Any = 0,
+        chain_rank: Any = 1,
+        star_rank: Any = 2,
+        rand_rank: Any = -1,
         weight_gener: Optional[Callable[[int, int], Any]] = None,
         father_gener: Optional[Callable[[int], int]] = None,
         **kwargs: Any,
@@ -1117,12 +1121,16 @@ class Graph:
         chain_cnt = int((size - 1) * chain)
         star_cnt = int((size - 1) * star)
         tree = Graph(size, directed)
+        tree.set_rank(0, root_rank)
         for i in range(1, chain_cnt + 1):
+            tree.set_rank(i, chain_rank)
             tree.add_edge(i, i - 1, weight_gener(i, i - 1))
         for i in range(chain_cnt + 1, chain_cnt + star_cnt + 1):
+            tree.set_rank(i, star_rank)
             tree.add_edge(i, chain_cnt, weight_gener(i, chain_cnt))
         for i in range(chain_cnt + star_cnt + 1, size):
             father = father_gener(i)
+            tree.set_rank(i, rand_rank)
             tree.add_edge(i, father, weight_gener(i, father))
         return tree
 
