@@ -4,7 +4,7 @@ This module provides utilities for creating and manipulating graphs.
 
 from typing import Any, Callable, Dict
 
-from rdgc.graph.graph import Graph
+from rdgc.graph.base import Graph
 from rdgc.graph.utils import null, complete, tournament, random_graph, cycle, wheel
 from rdgc.graph.tree import chain, star, tree, binary_tree, spanning_tree
 from rdgc.graph.degree import from_degree_sequence, k_regular

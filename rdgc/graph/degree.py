@@ -19,7 +19,7 @@ from typing import (
     cast,
 )
 
-from rdgc.graph.graph import Graph
+from rdgc.graph.base import Graph
 
 
 __all__ = ["from_degree_sequence", "k_regular"]

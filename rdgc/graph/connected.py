@@ -7,7 +7,7 @@ import warnings
 
 from typing import Any, Callable, Optional
 
-from rdgc.graph.graph import Graph
+from rdgc.graph.base import Graph
 from rdgc.graph.tree import spanning_tree
 from rdgc.graph.utils import cycle as cyc
 

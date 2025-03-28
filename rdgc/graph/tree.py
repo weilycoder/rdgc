@@ -8,7 +8,7 @@ import warnings
 from typing import Any, Callable, Optional, cast
 
 from rdgc.utils import Dsu
-from rdgc.graph.graph import Graph
+from rdgc.graph.base import Graph
 
 
 __all__ = ["chain", "star", "tree", "binary_tree", "spanning_tree"]

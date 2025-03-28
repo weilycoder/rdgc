@@ -7,7 +7,7 @@ import random as rd
 
 from typing import Any, Callable, Optional
 
-from rdgc.graph.graph import Graph
+from rdgc.graph.base import Graph
 
 
 __all__ = ["null", "complete", "tournament", "random_graph", "cycle", "wheel"]

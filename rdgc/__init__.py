@@ -12,7 +12,7 @@ from rdgc.nt import (
     randprime,
 )
 from rdgc.seq import Seq, SeqIter, Number
-from rdgc.graph import Graph, graph, GRAPH_GENERS
+from rdgc.graph import Graph, GRAPH_GENERS, make_graph
 from rdgc.utils import set_randseed_from_shell, dos2unix, dos2unix_file, dos2unix_dir
 
 
@@ -30,7 +30,7 @@ __all__ = [
     "SeqIter",
     "Number",
     "Graph",
-    "graph",
+    "make_graph",
     "GRAPH_GENERS",
     "set_randseed_from_shell",
     "dos2unix",
