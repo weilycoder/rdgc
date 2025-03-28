@@ -130,7 +130,7 @@ class TestGraph(unittest.TestCase):
     def test_self_loop(self):
         N = 20
         for _ in range(4):
-            graph = random(N, N * N // 4, self_loop=True)
+            graph = random_graph(N, N * N // 4, self_loop=True)
             flag = False
             for u in range(N):
                 if graph.count_edge(u, u) > 0:
@@ -143,7 +143,7 @@ class TestGraph(unittest.TestCase):
     def test_mutiedges(self):
         N = 20
         for _ in range(4):
-            graph = random(N, N * N, multiedge=True)
+            graph = random_graph(N, N * N, multiedge=True)
             self.assertEqual(graph.vertices, N)
             self.assertEqual(graph.edges, N * N)
             self.assertTrue(len(set(graph.get_edges())) < graph.edges)
@@ -151,14 +151,14 @@ class TestGraph(unittest.TestCase):
     def test_random(self):
         N = 20
         # Test graph with too many edges
-        random(
+        random_graph(
             N,
             Graph.calc_max_edge(N, True, False),  # type: ignore
             directed=True,
             self_loop=False,
         )
         with self.assertRaises(ValueError):
-            random(N, N * N, directed=True)
+            random_graph(N, N * N, directed=True)
 
     def test_connected(self):
         N = 20

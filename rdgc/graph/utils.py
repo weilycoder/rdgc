@@ -10,7 +10,7 @@ from typing import Any, Callable, Optional
 from rdgc.graph.graph import Graph
 
 
-__all__ = ["null", "complete", "tournament", "random", "cycle", "wheel"]
+__all__ = ["null", "complete", "tournament", "random_graph", "cycle", "wheel"]
 
 
 def null(
@@ -105,7 +105,7 @@ def tournament(
     return graph
 
 
-def random(
+def random_graph(
     size: int,
     edge_count: int,
     *args: Any,
