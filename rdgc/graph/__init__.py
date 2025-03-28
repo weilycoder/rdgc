@@ -36,6 +36,7 @@ GRAPH_GENERS: Dict[str, Callable[..., Graph]] = {
     "complete": complete,
     "tournament": tournament,
     "random": random_graph,
+    "random_graph": random_graph,
     "chain": chain,
     "star": star,
     "tree": tree,
