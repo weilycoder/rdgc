@@ -72,6 +72,7 @@ def tree(
     star_ratio: float = 0.0,
     *args: Any,
     directed: bool = False,
+    rank: bool = False,
     root_rank: Any = 0,
     chain_rank: Any = 1,
     star_rank: Any = 2,
@@ -109,6 +110,8 @@ def tree(
         weight_gener = lambda u, v: None
     if father_gener is None:
         father_gener = lambda u: random.randint(0, u - 1)
+    if not rank:
+        root_rank = chain_rank = star_rank = rand_rank = None
 
     chain_cnt = int((size - 1) * chain_ratio)
     star_cnt = int((size - 1) * star_ratio)
@@ -133,6 +136,7 @@ def binary_tree(
     right: Optional[float] = None,
     *args: Any,
     root: int = 0,
+    rank: bool = False,
     root_rank: Any = 0,
     left_rank: Any = -1,
     right_rank: Any = 1,
@@ -170,6 +174,8 @@ def binary_tree(
 
     if weight_gener is None:
         weight_gener = lambda u, v: None
+    if not rank:
+        root_rank = left_rank = right_rank = None
     if left is None and right is None:
         rnk = 0.5
     elif left is None:
