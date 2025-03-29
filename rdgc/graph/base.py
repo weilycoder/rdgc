@@ -5,6 +5,7 @@ A module to represent a graph.
 import itertools
 import math
 import random
+import warnings
 from collections import defaultdict
 
 from typing import (
@@ -335,6 +336,13 @@ class Graph:
             if shuffle is None
             else shuffle(self.vertices)
         )
+        if shuffle is not None:
+            if len(mapping) != self.vertices:
+                raise ValueError("Invalid shuffle mapping")
+            if len(set(mapping)) != self.vertices:
+                warnings.warn(
+                    "Duplicate vertices in shuffle mapping", RuntimeWarning, 2
+                )
         new_graph = Graph(self.vertices, self.directed)
         for u in range(self.vertices):
             new_graph.set_rank(mapping[u], self.get_rank(u))
