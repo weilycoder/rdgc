@@ -11,9 +11,6 @@ from rdgc.utils import Dsu
 from rdgc.graph.base import Graph
 
 
-__all__ = ["chain", "star", "tree", "binary_tree", "spanning_tree"]
-
-
 def chain(
     size: int,
     *args: Any,

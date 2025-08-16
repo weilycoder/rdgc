@@ -22,9 +22,6 @@ from typing import (
 from rdgc.graph.base import Graph
 
 
-__all__ = ["from_degree_sequence", "k_regular"]
-
-
 class SwitchGraph:
     """A graph which can switch edges quickly"""
 

@@ -12,9 +12,6 @@ from rdgc.graph.tree import spanning_tree
 from rdgc.graph.utils import cycle as cyc
 
 
-__all__ = ["connected", "strongly_connected"]
-
-
 def connected(
     size: int,
     edge_count: int,

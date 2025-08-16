@@ -23,9 +23,6 @@ from typing import (
 from rdgc.utils import filter_none
 
 
-__all__ = ["Graph"]
-
-
 class Graph:
     """A class to represent a graph."""
 
