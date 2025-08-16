@@ -220,6 +220,15 @@ class Seq:
     def __iter__(self):
         return iter(self.__values.items())
 
+    def getiterationlimit(self) -> Optional[int]:
+        """
+        Get the iteration limit of the sequence.
+
+        Returns:
+            The iteration limit of the sequence.
+        """
+        return self.__iter_limit
+
     def setiterationlimit(self, limit: Optional[int]):
         """
         Set the iteration limit of the sequence.
