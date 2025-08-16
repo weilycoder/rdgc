@@ -207,6 +207,18 @@ class TestGraph(unittest.TestCase):
                 self.assertEqual(graph.count_edge(0, u), 1)
                 self.assertEqual(graph.count_edge(u, u % (N - 1) + 1), 1)
 
+    def test_union(self):
+        N = 4
+        graph1 = complete(N)
+        graph2 = chain(N)
+        graph = union(graph1, graph2, default_mapping="connect")
+        self.assertEqual(graph.vertices, 2 * N - 1)
+        self.assertEqual(graph.edges, graph1.edges + graph2.edges)
+        self.assertEqual(
+            graph.output_edges(),
+            "0 1\n" "0 2\n" "0 3\n" "1 2\n" "1 3\n" "2 3\n" "3 4\n" "4 5\n" "5 6",
+        )
+
     def test_degree_unmutiedge(self):
         N = 20
         for _ in range(40):

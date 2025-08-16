@@ -198,21 +198,24 @@ class Graph:
         return self.__outdeg_counter[u]
 
     def get_edges(
-        self, u: Optional[int] = None
+        self, u: Optional[int] = None, *, directed: bool = False
     ) -> Generator[Tuple[int, int, Any], None, None]:
         """
         Returns an iterator over the edges of the graph.
 
         Args:
             u (int, optional): If specified, returns edges incident to vertex `u`. Defaults to None.
+            directed (bool): Only works if the graph is undirected.
+                If True, returns directed edges. Defaults to False.
 
         Yields:
             Tuple[int, int, Any]: A tuple containing the vertices and weight of an edge.
         """
+        directed = self.__directed or directed
         if u is None:
             for uu in range(self.vertices):
                 for vv, weight in self.__adjacency_list[uu]:
-                    if self.directed or uu <= vv:
+                    if directed or uu <= vv:
                         yield uu, vv, weight
         else:
             for v, weight in self.__adjacency_list[u]:

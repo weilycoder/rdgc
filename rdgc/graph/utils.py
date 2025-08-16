@@ -2,10 +2,11 @@
 This module provides utility functions to generate graphs.
 """
 
+import itertools
 import warnings
 import random as rd
 
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Literal, Optional
 
 from rdgc.graph.base import Graph
 
@@ -216,3 +217,103 @@ def wheel(
     for u in range(1, size):
         graph.add_edge(u, u % (size - 1) + 1, weight_gener(u, u % (size - 1) + 1))
     return graph
+
+
+def union(
+    *graphs: Graph,
+    directed: bool = False,
+    self_loop: bool = False,
+    multiedge: bool = False,
+    node_mapping: Optional[Callable[[int, int, tuple[Graph, ...]], int]] = None,
+    default_mapping: Literal["separate", "combine", "connect"] = "separate",
+) -> Graph:
+    """
+    Returns the union of multiple graphs.
+
+    This function combines multiple graphs into a single graph, allowing for
+    custom node mapping to handle potential conflicts in node IDs.
+
+    The rank of nodes is preserved from the original graphs, only the last one which is not None is used.
+
+    If `multiedge` is False, it ensures that no multiple edges are created between the same pair of nodes.
+    If there are multiple edges, only the first one is kept.
+
+    If `node_mapping` is not provided, it defaults to mapping nodes from different graphs
+    to unique IDs by adding the cumulative number of vertices from previous graphs.
+
+    Args:
+        *graphs (Graph): The graphs to be unioned.
+        directed (bool, optional): Specifies whether the resulting graph is directed. Defaults to False.
+        self_loop (bool, optional): If True, allows self-loops in the resulting graph. Defaults to False.
+        multiedge (bool, optional): If True, allows multiple edges between the same pair of nodes. Defaults to False.
+        node_mapping (Callable[[int, int, tuple[Graph, ...]], int], optional):
+            A function to map nodes from the original graphs to the new graph. It takes three arguments.
+            + `node`: The node ID in the original graph.
+            + `graph_index`: The index of the graph in the input list.
+            + `graphs`: The tuple of all input graphs.
+        default_mapping (Literal["separate", "combine", "connect"]):
+            Specifies the default behavior for `node_mapping` if not provided.
+            + If `"separate"`, it maps nodes to unique IDs by adding the cumulative number of vertices from previous graphs.
+            + If `"combine"`, it keeps the original node IDs as they are.
+            + If `"connect"`, it maps nodes to unique IDs except the first and last node of each graph,
+              which are connected to the previous graph's last node and the next graph's first node, respectively.
+
+    Returns:
+        Graph: A new graph that is the union of the input graphs.
+    """
+
+    if not graphs:
+        return Graph(0, directed)
+
+    if node_mapping is None:
+        if default_mapping == "combine":
+            node_mapping = lambda node, graph_idx, graphs: node
+        elif default_mapping == "separate":
+            prev_sum = list(
+                itertools.accumulate([0] + [graph.vertices for graph in graphs])
+            )
+            node_mapping = (
+                lambda node, graph_index, graphs: node + prev_sum[graph_index]
+            )
+        elif default_mapping == "connect":
+            prev_sum = list(
+                itertools.accumulate([0] + [graph.vertices for graph in graphs])
+            )
+            node_mapping = (
+                lambda node, graph_index, graphs: node
+                + prev_sum[graph_index]
+                - graph_index
+            )
+        else:
+            raise ValueError(
+                f"Unknown default_mapping: {default_mapping}. "
+                "Use 'separate' or 'combine'."
+            )
+
+    max_node_id = max(
+        node_mapping(j, i, graphs)
+        for i in range(len(graphs))
+        for j in range(graphs[i].vertices)
+    )
+
+    g = Graph(max_node_id + 1, directed=directed)
+
+    for i, graph in enumerate(graphs):
+        for u, v, weight in graph.get_edges(directed=directed):
+            new_u = node_mapping(u, i, graphs)
+            new_v = node_mapping(v, i, graphs)
+
+            if not multiedge and g.count_edge(new_u, new_v) > 0:
+                continue
+            if not self_loop and new_u == new_v:
+                continue
+
+            g.add_edge(new_u, new_v, weight)
+
+        for u in range(graph.vertices):
+            new_u = node_mapping(u, i, graphs)
+            u_rnk = graph.get_rank(u)
+            if u_rnk is not None:
+                g.set_rank(new_u, u_rnk)
+
+    return g
