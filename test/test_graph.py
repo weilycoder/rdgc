@@ -211,11 +211,7 @@ class TestGraph(unittest.TestCase):
         N = 4
         graph1 = complete(N)
         graph2 = chain(N)
-        graph = union(
-            graph1,
-            graph2,
-            node_mapping=lambda nid, gid, gs: nid if gid == 0 else nid + N - 1,
-        )
+        graph = union(graph1, graph2, default_mapping="connect")
         self.assertEqual(graph.vertices, 2 * N - 1)
         self.assertEqual(graph.edges, graph1.edges + graph2.edges)
         self.assertEqual(
