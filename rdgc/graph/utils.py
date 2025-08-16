@@ -6,7 +6,7 @@ import itertools
 import warnings
 import random as rd
 
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Literal, Optional
 
 from rdgc.graph.base import Graph
 
@@ -225,7 +225,7 @@ def union(
     self_loop: bool = False,
     multiedge: bool = False,
     node_mapping: Optional[Callable[[int, int, tuple[Graph, ...]], int]] = None,
-    separate_nodes: bool = True,
+    default_mapping: Literal["separate", "combine", "connect"] = "separate",
 ) -> Graph:
     """
     Returns the union of multiple graphs.
@@ -246,14 +246,17 @@ def union(
         directed (bool, optional): Specifies whether the resulting graph is directed. Defaults to False.
         self_loop (bool, optional): If True, allows self-loops in the resulting graph. Defaults to False.
         multiedge (bool, optional): If True, allows multiple edges between the same pair of nodes. Defaults to False.
-        node_mapping (Callable[[int, int, tuple[Graph, ...]], int], optional): A function to map nodes
-            from the original graphs to the new graph. It takes three arguments:
+        node_mapping (Callable[[int, int, tuple[Graph, ...]], int], optional):
+            A function to map nodes from the original graphs to the new graph. It takes three arguments.
             + `node`: The node ID in the original graph.
             + `graph_index`: The index of the graph in the input list.
             + `graphs`: The tuple of all input graphs.
-        separate_nodes (bool, optional): If True and `node_mapping` is not provided,
-            nodes from different graphs will be mapped to unique IDs by adding the
-            cumulative number of vertices from previous graphs. Defaults to True.
+        default_mapping (Literal["separate", "combine", "connect"]):
+            Specifies the default behavior for `node_mapping` if not provided.
+            + If `"separate"`, it maps nodes to unique IDs by adding the cumulative number of vertices from previous graphs.
+            + If `"combine"`, it keeps the original node IDs as they are.
+            + If `"connect"`, it maps nodes to unique IDs except the first and last node of each graph,
+              which are connected to the previous graph's last node and the next graph's first node, respectively.
 
     Returns:
         Graph: A new graph that is the union of the input graphs.
@@ -263,13 +266,29 @@ def union(
         return Graph(0, directed)
 
     if node_mapping is None:
-        if separate_nodes:
+        if default_mapping == "combine":
+            node_mapping = lambda node, graph_idx, graphs: node
+        elif default_mapping == "separate":
             prev_sum = list(
                 itertools.accumulate([0] + [graph.vertices for graph in graphs])
             )
-            node_mapping = lambda node, graph_idx, graphs: node + prev_sum[graph_idx]
+            node_mapping = (
+                lambda node, graph_index, graphs: node + prev_sum[graph_index]
+            )
+        elif default_mapping == "connect":
+            prev_sum = list(
+                itertools.accumulate([0] + [graph.vertices for graph in graphs])
+            )
+            node_mapping = (
+                lambda node, graph_index, graphs: node
+                + prev_sum[graph_index]
+                - graph_index
+            )
         else:
-            node_mapping = lambda node, graph_idx, graphs: node
+            raise ValueError(
+                f"Unknown default_mapping: {default_mapping}. "
+                "Use 'separate' or 'combine'."
+            )
 
     max_node_id = max(
         node_mapping(j, i, graphs)
