@@ -6,7 +6,7 @@ import itertools
 import warnings
 import random as rd
 
-from typing import Any, Callable, Literal, Optional
+from typing import Any, Callable, Literal, Optional, Tuple
 
 from rdgc.graph.base import Graph
 
@@ -224,7 +224,7 @@ def union(
     directed: bool = False,
     self_loop: bool = False,
     multiedge: bool = False,
-    node_mapping: Optional[Callable[[int, int, tuple[Graph, ...]], int]] = None,
+    node_mapping: Optional[Callable[[int, int, Tuple[Graph, ...]], int]] = None,
     default_mapping: Literal["separate", "combine", "connect"] = "separate",
 ) -> Graph:
     """
