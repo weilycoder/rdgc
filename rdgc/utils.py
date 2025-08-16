@@ -4,7 +4,7 @@ import os
 import sys
 import random
 
-from typing import Iterable, List, Optional, Tuple, TypeVar, Union
+from typing import Callable, Iterable, List, Optional, Tuple, TypeVar, Union
 
 
 T = TypeVar("T")
@@ -86,6 +86,27 @@ def dos2unix_dir(
 def filter_none(iterable: Iterable[Optional[T]]) -> Iterable[T]:
     """Filter out the None values in an iterable."""
     return (x for x in iterable if x is not None)
+
+
+def gener_uniform(start: int, end: int) -> Callable[..., int]:
+    """
+    Generate a uniform random number generator function.
+
+    Args:
+        start(int): The start of the range.
+        end(int): The end of the range.
+
+    Returns:
+        A function that generates a random integer in the range [start, end).
+    """
+
+    def generator(
+        *_args: int, **_kwargs: int
+    ) -> int:  # pylint: disable=unused-argument
+        """Generate a random integer in the range [start, end)."""
+        return random.randrange(start, end)
+
+    return generator
 
 
 class Dsu:

@@ -13,7 +13,14 @@ from rdgc.nt import (
 )
 from rdgc.seq import Seq, SeqIter, Number
 from rdgc.graph import Graph, GRAPH_GENERS, make_graph
-from rdgc.utils import set_randseed_from_shell, dos2unix, dos2unix_file, dos2unix_dir
+from rdgc.utils import (
+    set_randseed_from_shell,
+    dos2unix,
+    dos2unix_file,
+    dos2unix_dir,
+    filter_none,
+    gener_uniform,
+)
 
 
 __all__ = [
@@ -36,4 +43,6 @@ __all__ = [
     "dos2unix",
     "dos2unix_file",
     "dos2unix_dir",
+    "filter_none",
+    "gener_uniform",
 ]
