@@ -4,7 +4,7 @@ import os
 import sys
 import random
 
-from typing import *  # pylint: disable=W0401,W0614
+from typing import Iterable, List, Optional, Tuple, TypeVar, Union
 
 __all__ = ["set_randseed_from_shell", "dos2unix", "dos2unix_file", "dos2unix_dir"]
 
