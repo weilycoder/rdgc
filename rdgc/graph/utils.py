@@ -305,7 +305,6 @@ def union(
     multiedge: bool = False,
     node_mapping: Optional[Callable[[int, int, Tuple[Graph, ...]], int]] = None,
     default_mapping: Literal["separate", "combine", "connect"] = "separate",
-    **kwargs: Any,
 ) -> Graph:
     """
     Returns the union of multiple graphs.
@@ -341,9 +340,6 @@ def union(
     Returns:
         Graph: A new graph that is the union of the input graphs.
     """
-
-    if kwargs:
-        warnings.warn("Extra arguments are ignored", RuntimeWarning, 2)
 
     if not graphs:
         return Graph(0, directed)
