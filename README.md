@@ -89,6 +89,7 @@ pip install -i https://test.pypi.org/simple/ rdgc
 + duplicate-code (R0801)
 + too-many-public-methods (R0904)
 + too-many-return-statements (R0911)
++ too-many-branches (R0912)
 + too-many-arguments (R0913)
 + too-many-locals (R0914)
 + keyword-arg-before-vararg (W1113)
