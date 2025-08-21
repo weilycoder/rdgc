@@ -1,5 +1,6 @@
 # pylint: disable=all
 
+import itertools
 import random as rd
 import unittest
 from rdgc import Graph
@@ -206,6 +207,47 @@ class TestGraph(unittest.TestCase):
             for u in range(1, N):
                 self.assertEqual(graph.count_edge(0, u), 1)
                 self.assertEqual(graph.count_edge(u, u % (N - 1) + 1), 1)
+
+    def test_lattice_2D(self):
+        for _ in range(10):
+            n = rd.randint(2, 10)
+            graph = lattice([n, n], circular=False)
+            self.assertEqual(graph.vertices, n * n)
+            self.assertEqual(graph.edges, 2 * n * (n - 1))
+            for u, v in itertools.product(range(n), repeat=2):
+                if u < n - 1:
+                    self.assertEqual(graph.count_edge(u * n + v, (u + 1) * n + v), 1)
+                if v < n - 1:
+                    self.assertEqual(graph.count_edge(u * n + v, u * n + v + 1), 1)
+
+        for _ in range(10):
+            n = rd.randint(3, 10)
+            graph = lattice([n, n], circular=True)
+            self.assertEqual(graph.vertices, n * n)
+            self.assertEqual(graph.edges, 2 * n * n)
+            for u, v in itertools.product(range(n), repeat=2):
+                if u < n - 1:
+                    self.assertEqual(graph.count_edge(u * n + v, (u + 1) * n + v), 1)
+                else:
+                    self.assertEqual(graph.count_edge(u * n + v, v), 1)
+                if v < n - 1:
+                    self.assertEqual(graph.count_edge(u * n + v, u * n + v + 1), 1)
+                else:
+                    self.assertEqual(graph.count_edge(u * n + v, u * n), 1)
+
+    def test_lattice_3D(self):
+        for _ in range(10):
+            n = rd.randint(2, 5)
+            graph = lattice([n, n, n], circular=False)
+            self.assertEqual(graph.vertices, n * n * n)
+            self.assertEqual(graph.edges, 3 * n * n * (n - 1))
+            for u, v, w in itertools.product(range(n), repeat=3):
+                if u < n - 1:
+                    self.assertEqual(graph.count_edge(u * n * n + v * n + w, (u + 1) * n * n + v * n + w), 1)
+                if v < n - 1:
+                    self.assertEqual(graph.count_edge(u * n * n + v * n + w, u * n * n + (v + 1) * n + w), 1)
+                if w < n - 1:
+                    self.assertEqual(graph.count_edge(u * n * n + v * n + w, u * n * n + v * n + (w + 1)), 1)
 
     def test_union(self):
         N = 4
