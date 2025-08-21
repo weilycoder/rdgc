@@ -2,11 +2,12 @@
 This module provides utility functions to generate graphs.
 """
 
+import math
 import itertools
 import warnings
 import random as rd
 
-from typing import Any, Callable, Literal, Optional, Tuple
+from typing import Any, Callable, Literal, Optional, Tuple, Union, Iterable, List, cast
 
 from rdgc.graph.base import Graph
 
@@ -217,6 +218,62 @@ def wheel(
     for u in range(1, size):
         graph.add_edge(u, u % (size - 1) + 1, weight_gener(u, u % (size - 1) + 1))
     return graph
+
+
+def lattice(
+    dim: Union[List[int], Tuple[int, ...]],
+    nei: int = 1,
+    directed: bool = False,
+    mutual: bool = True,
+    circular: Union[bool, Iterable[bool]] = True,
+):
+    """
+    Returns a lattice graph with the specified dimensions.
+
+    The graph is constructed by connecting each vertex to its neighbors in the specified dimensions.
+
+    Args:
+        dim (Union[List[int], Tuple[int, ...]]): The dimensions of the lattice.
+        nei (int, optional): The number of neighbors to connect to in each dimension. Defaults to 1.
+        directed (bool, optional): If True, the graph is directed. Defaults to False.
+        mutual (bool, optional): If True, adds edges in both directions for each connection. Defaults to True.
+        circular (Union[bool, Iterable[bool]], optional): If True, the graph wraps around in each dimension.
+            If an iterable, specifies whether each dimension is circular.
+            Defaults to True, meaning all dimensions are circular.
+    """
+    g = Graph(math.prod(dim), directed)
+
+    num = len(dim)
+    try:
+        circular = iter(cast(Iterable[bool], circular))
+        circular = itertools.chain(circular, itertools.repeat(True))
+        circular = itertools.islice(circular, num)
+    except TypeError:
+        circular = itertools.repeat(cast(bool, circular), num)
+    circular = list(circular)
+
+    pre_prod = [1] + list(dim[0:-1])
+    for i in range(1, num):
+        pre_prod[i] *= pre_prod[i - 1]
+
+    for d in itertools.product(*map(range, dim)):
+        u = int(math.sumprod(d, pre_prod))
+        for i, cir in zip(range(num), circular):
+            flag, v = d[i], u
+            for _ in range(nei):
+                flag += 1
+                v += pre_prod[i]
+                if flag == dim[i]:
+                    if cir and dim[i] > 2:
+                        v -= pre_prod[i] * flag
+                        flag = 0
+                    else:
+                        break
+                g.add_edge(u, v)
+                if directed and mutual:
+                    g.add_edge(v, u)
+
+    return g
 
 
 def union(

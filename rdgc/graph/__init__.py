@@ -11,6 +11,7 @@ from rdgc.graph.utils import (
     tournament,
     random_graph,
     cycle,
+    lattice,
     wheel,
     union,
 )
@@ -33,6 +34,7 @@ __all__ = [
     "spanning_tree",
     "cycle",
     "wheel",
+    "lattice",
     "union",
     "connected",
     "strongly_connected",
@@ -54,6 +56,7 @@ GRAPH_GENERS: Dict[str, Callable[..., Graph]] = {
     "cycle": cycle,
     "wheel": wheel,
     "union": union,
+    "lattice": lattice,
     "connected": connected,
     "strongly_connected": strongly_connected,
     "from_degree_sequence": from_degree_sequence,
