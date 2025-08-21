@@ -53,6 +53,7 @@ GRAPH_GENERS: Dict[str, Callable[..., Graph]] = {
     "spanning_tree": spanning_tree,
     "cycle": cycle,
     "wheel": wheel,
+    "union": union,
     "connected": connected,
     "strongly_connected": strongly_connected,
     "from_degree_sequence": from_degree_sequence,
