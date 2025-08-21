@@ -85,9 +85,8 @@ pip install -i https://test.pypi.org/simple/ rdgc
 
 全局禁用的检查包括：
 
-+ line-too-long (C0301)
-+ too-many-lines (C0302)
 + unnecessary-lambda-assignment (C3001)
++ duplicate-code (R0801)
 + too-many-public-methods (R0904)
 + too-many-return-statements (R0911)
 + too-many-arguments (R0913)
