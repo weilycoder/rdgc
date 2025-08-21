@@ -2,11 +2,12 @@
 This module provides utility functions to generate graphs.
 """
 
+import math
 import itertools
 import warnings
 import random as rd
 
-from typing import Any, Callable, Literal, Optional, Tuple
+from typing import Any, Callable, Literal, Optional, Tuple, Union, Iterable, List, cast
 
 from rdgc.graph.base import Graph
 
@@ -145,9 +146,7 @@ def random_graph(
 
     graph = Graph(size, directed)
     while graph.edges < edge_count:
-        u, v = (
-            rd.sample(range(size), 2) if not self_loop else rd.choices(range(size), k=2)
-        )
+        u, v = rd.sample(range(size), 2) if not self_loop else rd.choices(range(size), k=2)
         if multiedge or graph.count_edge(u, v) == 0:
             graph.add_edge(u, v, weight_gener(u, v))
     return graph
@@ -219,6 +218,86 @@ def wheel(
     return graph
 
 
+def lattice(
+    dim: Union[List[int], Tuple[int, ...]],
+    nei: int = 1,
+    *args: Any,
+    directed: bool = False,
+    mutual: bool = True,
+    circular: Union[bool, Iterable[bool]] = True,
+    weight_gener_by_id: Optional[Callable[[int, int], Any]] = None,
+    weight_gener_by_dim: Optional[Callable[[Tuple[int, ...], Tuple[int, ...]], Any]] = None,
+    **kwargs: Any,
+):
+    """
+    Returns a lattice graph with the specified dimensions.
+
+    The graph is constructed by connecting each vertex to its neighbors in the specified dimensions.
+
+    Args:
+        dim (Union[List[int], Tuple[int, ...]]): The dimensions of the lattice.
+        nei (int, optional): The number of neighbors to connect to in each dimension. Defaults to 1.
+        directed (bool, optional): If True, the graph is directed. Defaults to False.
+        mutual (bool, optional): If True, adds edges in both directions for each connection. Defaults to True.
+        circular (Union[bool, Iterable[bool]], optional): If True, the graph wraps around in each dimension.
+            If an iterable, specifies whether each dimension is circular.
+            Defaults to True, meaning all dimensions are circular.
+        weight_gener_by_id (Optional[Callable[[int, int], Any]], optional): A function to generate edge weights
+            based on vertex IDs. If provided, it takes two arguments: the IDs of the vertices being connected.
+        weight_gener_by_dim (Optional[Callable[[Tuple[int, ...], Tuple[int, ...]], Any]], optional):
+            A function to generate edge weights based on the dimensions of the vertices being connected.
+            If provided, it takes two arguments: the dimensions of the vertices being connected.
+            If both `weight_gener_by_id` and `weight_gener_by_dim` are provided, a ValueError is raised.
+    """
+    if weight_gener_by_id is not None and weight_gener_by_dim is not None:
+        raise ValueError("Only one of weight_gener_by_id or weight_gener_by_dim can be provided.")
+
+    if args or kwargs:
+        warnings.warn("Extra arguments are ignored", RuntimeWarning, 2)
+
+    def weight_gener(x: int, y: int, dim_x: Tuple[int, ...], dim_y: Tuple[int, ...]) -> Any:
+        if weight_gener_by_id is not None:
+            return weight_gener_by_id(x, y)
+        if weight_gener_by_dim is not None:
+            return weight_gener_by_dim(dim_x, dim_y)
+        return None
+
+    g = Graph(math.prod(dim), directed)
+
+    num = len(dim)
+    try:
+        circular = iter(cast(Iterable[bool], circular))
+        circular = itertools.chain(circular, itertools.repeat(True))
+        circular = itertools.islice(circular, num)
+    except TypeError:
+        circular = itertools.repeat(cast(bool, circular), num)
+    circular = list(circular)
+
+    pre_prod = [1] + list(dim[0:-1])
+    for i in range(1, num):
+        pre_prod[i] *= pre_prod[i - 1]
+
+    for dim_u in itertools.product(*map(range, dim)):
+        u = int(math.sumprod(dim_u, pre_prod))
+        for i, cir in zip(range(num), circular):
+            flag, v = dim_u[i], u
+            for _ in range(nei):
+                flag += 1
+                v += pre_prod[i]
+                if flag == dim[i]:
+                    if cir and dim[i] > 2:
+                        v -= pre_prod[i] * flag
+                        flag = 0
+                    else:
+                        break
+                dim_v = dim_u[:i] + (flag,) + dim_u[i + 1 :]
+                g.add_edge(u, v, weight_gener(u, v, dim_u, dim_v))
+                if directed and mutual:
+                    g.add_edge(v, u, weight_gener(v, u, dim_v, dim_u))
+
+    return g
+
+
 def union(
     *graphs: Graph,
     directed: bool = False,
@@ -269,32 +348,15 @@ def union(
         if default_mapping == "combine":
             node_mapping = lambda node, graph_idx, graphs: node
         elif default_mapping == "separate":
-            prev_sum = list(
-                itertools.accumulate([0] + [graph.vertices for graph in graphs])
-            )
-            node_mapping = (
-                lambda node, graph_index, graphs: node + prev_sum[graph_index]
-            )
+            prev_sum = list(itertools.accumulate([0] + [graph.vertices for graph in graphs]))
+            node_mapping = lambda node, graph_index, graphs: node + prev_sum[graph_index]
         elif default_mapping == "connect":
-            prev_sum = list(
-                itertools.accumulate([0] + [graph.vertices for graph in graphs])
-            )
-            node_mapping = (
-                lambda node, graph_index, graphs: node
-                + prev_sum[graph_index]
-                - graph_index
-            )
+            prev_sum = list(itertools.accumulate([0] + [graph.vertices for graph in graphs]))
+            node_mapping = lambda node, graph_index, graphs: node + prev_sum[graph_index] - graph_index
         else:
-            raise ValueError(
-                f"Unknown default_mapping: {default_mapping}. "
-                "Use 'separate' or 'combine'."
-            )
+            raise ValueError(f"Unknown default_mapping: {default_mapping}. " "Use 'separate' or 'combine'.")
 
-    max_node_id = max(
-        node_mapping(j, i, graphs)
-        for i in range(len(graphs))
-        for j in range(graphs[i].vertices)
-    )
+    max_node_id = max(node_mapping(j, i, graphs) for i in range(len(graphs)) for j in range(graphs[i].vertices))
 
     g = Graph(max_node_id + 1, directed=directed)
 
