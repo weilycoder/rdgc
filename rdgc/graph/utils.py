@@ -278,7 +278,7 @@ def lattice(
         pre_prod[i] *= pre_prod[i - 1]
 
     for dim_u in itertools.product(*map(range, dim)):
-        u = int(math.sumprod(dim_u, pre_prod))
+        u = sum(map(lambda x, y: x * y, dim_u, pre_prod))
         for i, cir in zip(range(num), circular):
             flag, v = dim_u[i], u
             for _ in range(nei):
