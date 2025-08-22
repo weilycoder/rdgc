@@ -36,18 +36,19 @@ def dos2unix(s: str) -> str:
     return s.replace("\r\n", "\n")
 
 
-def dos2unix_file(file: str) -> None:
+def dos2unix_file(file: str, *, retain_whitespace: bool = False) -> None:
     """
     Convert DOS line endings to Unix line endings in a file.
 
     Args:
         file(str): The file to convert.
+        retain_whitespace(bool): Whether to retain leading and trailing whitespace (default: False).
     """
     data: List[str] = []
 
     with open(file, "r", encoding="ascii") as f:
         for line in f:
-            data.append(line.strip())
+            data.append(line if retain_whitespace else line.strip())
 
     while data and not data[-1]:
         data.pop()
@@ -63,6 +64,7 @@ def dos2unix_dir(
     *,
     suffixs: Tuple[str, ...] = ("in", "out"),
     echo: bool = False,
+    retain_whitespace: bool = False,
 ) -> None:
     """
     Convert DOS line endings to Unix line endings in a directory.
@@ -72,11 +74,12 @@ def dos2unix_dir(
         recursive(bool): Whether to convert recursively (default: False).
         suffixs(Tuple[str]): The suffixes of the files to convert (default: ("in", "out")).
         echo(bool): Whether to print the files that are converted (default: False).
+        retain_whitespace(bool): Whether to retain leading and trailing whitespace (default: False).
     """
     for root, _, files in os.walk(directory):
         for file in files:
             if any(file.endswith(suffix) for suffix in suffixs):
-                dos2unix_file(os.path.join(root, file))
+                dos2unix_file(os.path.join(root, file), retain_whitespace=retain_whitespace)
                 if echo:
                     print(f"Converted {ascii(file)} to Unix format.")
         if not recursive:
