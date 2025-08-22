@@ -1,4 +1,4 @@
 [MASTER]
-py-version=3.6
+py-version=3.8
 max-line-length=140
 disable=C3001,R0801,R0904,R0911,R0912,R0914,R0913,W1113
