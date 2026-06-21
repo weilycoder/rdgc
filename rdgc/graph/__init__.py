@@ -14,6 +14,7 @@ from rdgc.graph.utils import (
     lattice,
     wheel,
     union,
+    complement,
 )
 from rdgc.graph.tree import chain, star, tree, binary_tree, spanning_tree
 from rdgc.graph.degree import from_degree_sequence, k_regular
@@ -36,6 +37,7 @@ __all__ = [
     "wheel",
     "lattice",
     "union",
+    "complement",
     "connected",
     "strongly_connected",
     "from_degree_sequence",

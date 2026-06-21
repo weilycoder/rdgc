@@ -379,3 +379,42 @@ def union(
                 g.set_rank(new_u, u_rnk)
 
     return g
+
+
+def complement(
+    graph: Graph,
+    *args: Any,
+    self_loop: bool = False,
+    weight_gener: Optional[Callable[[int, int], Any]] = None,
+    **kwargs: Any,
+) -> Graph:
+    """
+    Returns the complement of a graph.
+
+    The complement of a graph is a graph on the same vertices where two distinct vertices are adjacent
+    if and only if they are not adjacent in the original graph.
+
+    Args:
+        graph (Graph): The original graph.
+        self_loop (bool): If True, allows self-loops in the resulting graph. Defaults to False.
+        weight_gener (Callable[[int, int], Any], optional): A function to generate edge weights. Defaults to None.
+
+    Warnings:
+        RuntimeWarning: If extra arguments are provided.
+
+    Returns:
+        Graph: The complement of the original graph.
+    """
+    if args or kwargs:
+        warnings.warn("Extra arguments are ignored", RuntimeWarning, 2)
+    if weight_gener is None:
+        weight_gener = lambda u, v: None
+
+    cgraph = Graph(graph.vertices, directed=graph.directed, rnk=graph.get_ranks())
+    for u in range(graph.vertices):
+        for v in range(graph.vertices) if graph.directed else range(u, graph.vertices):
+            if u == v and self_loop is False:
+                continue
+            if graph.count_edge(u, v) == 0:
+                cgraph.add_edge(u, v, weight_gener(u, v))
+    return cgraph

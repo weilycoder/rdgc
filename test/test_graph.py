@@ -261,6 +261,43 @@ class TestGraph(unittest.TestCase):
             "0 1\n" "0 2\n" "0 3\n" "1 2\n" "1 3\n" "2 3\n" "3 4\n" "4 5\n" "5 6",
         )
 
+    def test_complement_undirected(self):
+        N = 6
+        for _ in range(10):
+            graph = random_graph(N, 7)
+            comp = complement(graph)
+
+            self.assertEqual(comp.vertices, N)
+            for u in range(N):
+                self.assertEqual(comp.count_edge(u, u), 0)
+                for v in range(u + 1, N):
+                    self.assertEqual(graph.count_edge(u, v) + comp.count_edge(u, v), 1)
+
+    def test_complement_directed(self):
+        N = 5
+        for _ in range(10):
+            graph = random_graph(N, 8, directed=True)
+            comp = complement(graph)
+
+            self.assertEqual(comp.vertices, N)
+            for u in range(N):
+                self.assertEqual(comp.count_edge(u, u), 0)
+                for v in range(N):
+                    if u != v:
+                        self.assertEqual(graph.count_edge(u, v) + comp.count_edge(u, v), 1)
+
+    def test_complement_self_loop_and_rank(self):
+        graph = Graph(4, directed=True, rnk=[10, 20, 30, 40])
+        graph.add_edge(0, 1)
+        graph.add_edge(2, 2)
+
+        comp = complement(graph, self_loop=True)
+
+        self.assertEqual(comp.get_ranks(), graph.get_ranks())
+        for u in range(graph.vertices):
+            for v in range(graph.vertices):
+                self.assertEqual(graph.count_edge(u, v) + comp.count_edge(u, v), 1)
+
     def test_degree_unmutiedge(self):
         N = 20
         for _ in range(40):
