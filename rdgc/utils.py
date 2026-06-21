@@ -103,9 +103,7 @@ def gener_uniform(start: int, end: int) -> Callable[..., int]:
         A function that generates a random integer in the range [start, end).
     """
 
-    def generator(
-        *_args: int, **_kwargs: int
-    ) -> int:  # pylint: disable=unused-argument
+    def generator(*_args: int, **_kwargs: int) -> int:  # pylint: disable=unused-argument
         """Generate a random integer in the range [start, end)."""
         return random.randrange(start, end)
 

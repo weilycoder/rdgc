@@ -46,9 +46,7 @@ def connected(
     if args or kwargs:
         warnings.warn("Extra arguments are ignored", RuntimeWarning, 2)
     if cycle and not directed:
-        warnings.warn(
-            "Argument `cycle` is ignored for undirected graphs", RuntimeWarning, 2
-        )
+        warnings.warn("Argument `cycle` is ignored for undirected graphs", RuntimeWarning, 2)
 
     if edge_count < size - 1:
         raise ValueError(f"Too few edges: {edge_count} < {size - 1}")
@@ -65,11 +63,7 @@ def connected(
         u, v = sorted((u, v))
         graph.add_edge(u, v, weight_gener(u, v))
     while graph.edges < edge_count:
-        u, v = (
-            random.sample(range(size), 2)
-            if not self_loop
-            else random.choices(range(size), k=2)
-        )
+        u, v = random.sample(range(size), 2) if not self_loop else random.choices(range(size), k=2)
         if not cycle:
             u, v = sorted((u, v))
         if multiedge or graph.count_edge(u, v) == 0:
@@ -120,11 +114,7 @@ def strongly_connected(
     graph = cyc(size, directed=True, weight_gener=weight_gener)
 
     while graph.edges < edge_count:
-        u, v = (
-            random.sample(range(size), 2)
-            if not self_loop
-            else random.choices(range(size), k=2)
-        )
+        u, v = random.sample(range(size), 2) if not self_loop else random.choices(range(size), k=2)
         if multiedge or graph.count_edge(u, v) == 0:
             graph.add_edge(u, v, weight_gener(u, v))
 

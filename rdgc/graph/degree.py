@@ -146,9 +146,7 @@ class SwitchGraph:
             return False
 
         if not multiedge and (x1 == y1 and x2 == y2):
-            return self._switch3(
-                first, second, self_loop=self_loop, multiedge=multiedge
-            )
+            return self._switch3(first, second, self_loop=self_loop, multiedge=multiedge)
 
         self.remove([first, second])
 
@@ -394,10 +392,7 @@ def from_degree_sequence(
     size = len(degree_sequence)
     edge_count = sg.edge_count()
     if iter_times is None:
-        iter_times = int(
-            Graph.edge_estimate(size, edge_count, directed, self_loop, multiedge)
-            / math.log(2)
-        )
+        iter_times = int(Graph.edge_estimate(size, edge_count, directed, self_loop, multiedge) / math.log(2))
     iter_times = min(iter_times + 1, iter_limit)
 
     for _ in range(iter_times):
@@ -448,10 +443,7 @@ def k_regular(
     sg = SwitchGraph.k_regular(size, k, self_loop=self_loop, multiedge=multiedge)
     edge_count = sg.edge_count()
     if iter_times is None:
-        iter_times = int(
-            Graph.edge_estimate(size, edge_count, False, self_loop, multiedge)
-            / math.log(2)
-        )
+        iter_times = int(Graph.edge_estimate(size, edge_count, False, self_loop, multiedge) / math.log(2))
     iter_times = min(iter_times + 1, iter_limit)
 
     for _ in range(iter_times):

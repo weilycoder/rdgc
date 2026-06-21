@@ -271,15 +271,11 @@ class Graph:
         if not multiedge:
             max_edge = Graph.calc_max_edge(self.vertices, self.directed, self_loop)
             if self.edges + edge_count > max_edge:
-                raise ValueError(
-                    f"Too many edges: {self.edges} + {edge_count} > {max_edge}"
-                )
+                raise ValueError(f"Too many edges: {self.edges} + {edge_count} > {max_edge}")
 
         while self.edges < edge_count:
             u, v = (
-                random.sample(range(self.vertices), 2)
-                if not self_loop
-                else random.choices(range(self.vertices), k=2)
+                random.sample(range(self.vertices), 2) if not self_loop else random.choices(range(self.vertices), k=2)
             )
             if multiedge or self.count_edge(u, v) == 0:
                 self.add_edge(u, v, weight_gener(u, v))
@@ -319,9 +315,7 @@ class Graph:
             raise ValueError("Invalid vertex")
         return 0 if (u, v) not in self.__edge_counter else self.__edge_counter[(u, v)]
 
-    def shuffle_nodes(
-        self, shuffle: Optional[Callable[[int], Sequence[int]]] = None
-    ) -> "Graph":
+    def shuffle_nodes(self, shuffle: Optional[Callable[[int], Sequence[int]]] = None) -> "Graph":
         """
         Shuffles the vertices of the graph.
 
@@ -331,18 +325,12 @@ class Graph:
         Returns:
             Graph: A new graph with shuffled vertices.
         """
-        mapping = (
-            random.sample(range(self.vertices), self.vertices)
-            if shuffle is None
-            else shuffle(self.vertices)
-        )
+        mapping = random.sample(range(self.vertices), self.vertices) if shuffle is None else shuffle(self.vertices)
         if shuffle is not None:
             if len(mapping) != self.vertices:
                 raise ValueError("Invalid shuffle mapping")
             if len(set(mapping)) != self.vertices:
-                warnings.warn(
-                    "Duplicate vertices in shuffle mapping", RuntimeWarning, 2
-                )
+                warnings.warn("Duplicate vertices in shuffle mapping", RuntimeWarning, 2)
         new_graph = Graph(self.vertices, self.directed)
         for u in range(self.vertices):
             new_graph.set_rank(mapping[u], self.get_rank(u))
