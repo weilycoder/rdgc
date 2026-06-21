@@ -58,20 +58,7 @@ pip install rdgc
 pip install -i https://test.pypi.org/simple/ rdgc
 ```
 
-当然，后者不是推荐行为。
-
-## Semantic Versioning
-
-原则上，我是支持 [语义化版本](https://semver.org/lang/zh-CN/) 的，但是由于现在项目随时可能出现 Bug 和 idea，并可能由于使 API 更可读而重构，因此将项目版本号维持在 `0.x.x` 以说明处于快速开发阶段。
-
-计划在完成大部分 idea 后进行一次重构并将版本号改为 `1.x.x`。
-
-目前尽量遵循以下规范：
-
-+ 若引入了重要的数据生成 API（被记录在 README 文件），则将次版本号递增；
-+ 若加入了小的 API 或 Bug 修复，将修订号递增。
-
-当然，暂时更可能看我心情。
+后者不是推荐行为。
 
 ## License
 
