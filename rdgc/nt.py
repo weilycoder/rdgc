@@ -159,7 +159,7 @@ fast_isPrime = miller_rabin
 
 def nextprime(n: int) -> int:
     """
-    Find the next prime number greater than or equal to the given integer `n`.
+    Find the next prime number greater than the given integer `n`.
 
     Notes:
         - If `n` is less than 2, the function returns 2 as the smallest prime number.
