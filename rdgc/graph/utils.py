@@ -139,17 +139,21 @@ def random_graph(
     if weight_gener is None:
         weight_gener = lambda u, v: None
 
+    gcomple = False
     if not multiedge:
         max_edge = Graph.calc_max_edge(size, directed, self_loop)
         if edge_count > max_edge:
             raise ValueError(f"Too many edges: {edge_count} > {max_edge}")
+        if edge_count > max_edge // 2:
+            gcomple = True
+            edge_count = max_edge - edge_count
 
     graph = Graph(size, directed)
     while graph.edges < edge_count:
         u, v = rd.sample(range(size), 2) if not self_loop else rd.choices(range(size), k=2)
         if multiedge or graph.count_edge(u, v) == 0:
-            graph.add_edge(u, v, weight_gener(u, v))
-    return graph
+            graph.add_edge(u, v, None if gcomple else weight_gener(u, v))
+    return complement(graph, self_loop=self_loop, weight_gener=weight_gener) if gcomple else graph
 
 
 def cycle(
