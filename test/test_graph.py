@@ -11,6 +11,16 @@ from rdgc.utils import Dsu
 __all__ = ["TestGraph"]
 
 
+class CallCounter:
+    def __init__(self, func):
+        self.func = func
+        self.count = 0
+
+    def __call__(self, *args, **kwargs):
+        self.count += 1
+        return self.func(*args, **kwargs)
+
+
 class TestGraph(unittest.TestCase):
     def assert_connected(self, graph: Graph):
         n = graph.vertices
@@ -149,17 +159,25 @@ class TestGraph(unittest.TestCase):
             self.assertEqual(graph.edges, N * N)
             self.assertTrue(len(set(graph.get_edges())) < graph.edges)
 
-    def test_random(self):
+    def test_random_too_many_edges(self):
         N = 20
-        # Test graph with too many edges
-        random_graph(
-            N,
-            Graph.calc_max_edge(N, True, False),  # type: ignore
-            directed=True,
-            self_loop=False,
-        )
+
+        def _test_call_count(e: int):
+            gener = CallCounter(lambda u, v: None)
+            random_graph(
+                N,
+                e,
+                directed=True,
+                self_loop=False,
+                weight_gener=gener,
+            )
+            self.assertEqual(gener.count, e)
+
+        M = Graph.calc_max_edge(N, True, False)
+        for ee in [M, M - 1, M // 2, M // 3, M // 3 * 2]:
+            _test_call_count(ee)
         with self.assertRaises(ValueError):
-            random_graph(N, N * N, directed=True)
+            _test_call_count(M + 1)
 
     def test_connected(self):
         N = 20
