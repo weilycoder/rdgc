@@ -64,6 +64,14 @@ class Graph:
         self.set_ranks(rnk)
 
     @property
+    def E(self) -> int:
+        return self.edges
+
+    @property
+    def V(self) -> int:
+        return self.vertices
+
+    @property
     def edges(self) -> int:
         """Returns the total number of edges in the graph."""
         return self.__total_edge_count
