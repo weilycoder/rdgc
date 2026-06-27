@@ -112,10 +112,15 @@ def random_graph(
     self_loop: bool = False,
     multiedge: bool = False,
     weight_gener: Optional[Callable[[int, int], Any]] = None,
+    dense_ratio: float = 0.5,
     **kwargs: Any,
 ) -> Graph:
     """
     Returns a random graph with `size` vertices and `edge_count` edges.
+
+    If the requested edge count is greater than `max_edge * dense_ratio`,
+    the function switches to a dense construction strategy and builds the
+    complement of a sparse graph instead.
 
     Args:
         size (int): The number of vertices.
@@ -124,6 +129,8 @@ def random_graph(
         self_loop (bool, optional): Specifies whether self-loops are allowed. Defaults to False.
         multiedge (bool, optional): Specifies whether multiple edges are allowed. Defaults to False.
         weight_gener (Callable[[int, int], Any], optional): A function to generate edge weights. Defaults to None.
+        dense_ratio (float, optional): Threshold for switching to dense construction when
+            `multiedge` is disabled. Defaults to 0.5.
 
     Raises:
         ValueError: If the number of edges is invalid.
@@ -139,21 +146,21 @@ def random_graph(
     if weight_gener is None:
         weight_gener = lambda u, v: None
 
-    gcomple = False
+    is_dense = False
     if not multiedge:
         max_edge = Graph.calc_max_edge(size, directed, self_loop)
         if edge_count > max_edge:
             raise ValueError(f"Too many edges: {edge_count} > {max_edge}")
-        if edge_count > max_edge // 2:
-            gcomple = True
+        if edge_count > max_edge * dense_ratio:
+            is_dense = True
             edge_count = max_edge - edge_count
 
     graph = Graph(size, directed)
     while graph.edges < edge_count:
         u, v = rd.sample(range(size), 2) if not self_loop else rd.choices(range(size), k=2)
         if multiedge or graph.count_edge(u, v) == 0:
-            graph.add_edge(u, v, None if gcomple else weight_gener(u, v))
-    return complement(graph, self_loop=self_loop, weight_gener=weight_gener) if gcomple else graph
+            graph.add_edge(u, v, None if is_dense else weight_gener(u, v))
+    return complement(graph, self_loop=self_loop, weight_gener=weight_gener) if is_dense else graph
 
 
 def cycle(
